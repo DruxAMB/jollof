@@ -19,10 +19,8 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Button } from "./components/DemoComponents";
-import { Icon } from "./components/DemoComponents";
-import { Home } from "./components/DemoComponents";
-import { Features } from "./components/DemoComponents";
+import { Button, Icon, Home, Features } from "./components/DemoComponents";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function App() {
