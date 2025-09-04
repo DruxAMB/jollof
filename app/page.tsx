@@ -80,7 +80,6 @@ export default function App() {
       <Modal
         isOpen={gameModalOpen}
         onClose={() => setGameModalOpen(false)}
-        showCloseButton={true}
       >
         <GameModal />
       </Modal>
@@ -89,8 +88,6 @@ export default function App() {
       <Modal
         isOpen={leaderboardModalOpen}
         onClose={() => setLeaderboardModalOpen(false)}
-        showCloseButton={true}
-        title="Jollof Wars Leaderboard"
       >
         <LeaderboardModal />
       </Modal>
@@ -199,7 +196,11 @@ export default function App() {
           <div className="flex justify-around max-w-md mx-auto">
             <div 
               className={`flex flex-col items-center ${activeTab === "home" ? "scale-110" : ""}`}
-              onClick={() => setActiveTab("home")}
+              onClick={() => {
+                setActiveTab("home");
+                setGameModalOpen(false);
+                setLeaderboardModalOpen(false);
+              }}
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "home" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
                 <span className="text-xl">🏚️</span>
@@ -226,7 +227,11 @@ export default function App() {
             </div>
             <div 
               className={`flex flex-col items-center ${activeTab === "features" ? "scale-110" : ""}`}
-              onClick={() => setActiveTab("features")}
+              onClick={() => {
+                setActiveTab("features");
+                setGameModalOpen(false);
+                setLeaderboardModalOpen(false);
+              }}
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "features" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
                 <span className="text-xl">✨</span>

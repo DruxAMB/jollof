@@ -46,7 +46,7 @@ export function LeaderboardModal() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
+      <div className="my-8 text-center">
         <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Jollof Wars Leaderboard</h1>
         <p className="text-black font-bold">See who's cooking the best Jollof in town!</p>
       </div>

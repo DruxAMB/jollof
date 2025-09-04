@@ -13,7 +13,7 @@ export function TeamSelection() {
   };
   
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+    <div className="flex flex-col items-center justify-start px-4 pt-8">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-extrabold text-black mb-3 uppercase">Jollof Wars</h1>
         <p className="text-xl text-black font-bold">Choose your team and cook the best Jollof rice!</p>

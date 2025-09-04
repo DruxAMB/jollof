@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, ReactNode } from "react";
-import { Button } from "./Button";
 import { createPortal } from "react-dom";
 
 type ModalProps = {
@@ -59,19 +58,9 @@ export function Modal({
         </div>
       )}
       
-      {showCloseButton && (
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/80 hover:bg-white text-amber-800 hover:text-amber-900"
-        >
-          <span className="sr-only">Close</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      )}
+      {/* Close button removed - using tab navigation instead */}
       
-      <div className="w-full h-full p-4 pt-16 pb-24 overflow-y-auto">
+      <div className="w-full h-full overflow-y-auto">
         {children}
       </div>
     </div>
