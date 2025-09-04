@@ -70,7 +70,7 @@ export function LeaderboardModal() {
           <Button 
             variant={selectedTeam === "ghana" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("ghana")}
-            className="rounded-l-none uppercase"
+            className="rounded-l-none uppercase text-black"
           >
             Team Ghana
           </Button>

@@ -51,7 +51,7 @@ export function Modal({
   
   const modalContent = (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 animate-fade-in"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 animate-fade-in"
     >
       {title && (
         <div className="absolute top-0 left-0 right-0 p-4 text-center bg-white/80 backdrop-blur-sm border-b border-amber-200">
@@ -71,7 +71,7 @@ export function Modal({
         </button>
       )}
       
-      <div className="w-full h-full p-4 pt-16 overflow-y-auto">
+      <div className="w-full h-full p-4 pt-16 pb-24 overflow-y-auto">
         {children}
       </div>
     </div>

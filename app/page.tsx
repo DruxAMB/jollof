@@ -195,44 +195,44 @@ export default function App() {
 
         <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}
         
-        <nav className="fixed bottom-0 left-0 right-0 z-10 border-t-2 border-black bg-yellow-300 py-2 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-black bg-yellow-300 py-3 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
           <div className="flex justify-around max-w-md mx-auto">
-            <Button
-              variant={activeTab === "home" ? "primary" : "outline"}
-              size="sm"
+            <div 
+              className={`flex flex-col items-center ${activeTab === "home" ? "scale-110" : ""}`}
               onClick={() => setActiveTab("home")}
-              className="flex flex-col items-center font-bold"
-              icon={<span className="text-lg">🏚️</span>}
             >
-              Home
-            </Button>
-            <Button
-              variant={gameModalOpen ? "primary" : "outline"}
-              size="sm"
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "home" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
+                <span className="text-xl">🏚️</span>
+              </div>
+              <span className={`text-xs font-extrabold ${activeTab === "home" ? "text-black" : "text-black/60"}`}>Home</span>
+            </div>
+            <div 
+              className={`flex flex-col items-center ${gameModalOpen ? "scale-110" : ""}`}
               onClick={() => setGameModalOpen(true)}
-              className="flex flex-col items-center font-bold"
-              icon={<span className="text-lg">🍚</span>}
             >
-              Game
-            </Button>
-            <Button
-              variant={leaderboardModalOpen ? "primary" : "outline"}
-              size="sm"
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${gameModalOpen ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
+                <span className="text-xl">🍚</span>
+              </div>
+              <span className={`text-xs font-extrabold ${gameModalOpen ? "text-black" : "text-black/60"}`}>Game</span>
+            </div>
+            <div 
+              className={`flex flex-col items-center ${leaderboardModalOpen ? "scale-110" : ""}`}
               onClick={() => setLeaderboardModalOpen(true)}
-              className="flex flex-col items-center font-bold"
-              icon={<span className="text-lg">🏆</span>}
             >
-              Ranks
-            </Button>
-            <Button
-              variant={activeTab === "features" ? "primary" : "outline"}
-              size="sm"
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${leaderboardModalOpen ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
+                <span className="text-xl">🏆</span>
+              </div>
+              <span className={`text-xs font-extrabold ${leaderboardModalOpen ? "text-black" : "text-black/60"}`}>Ranks</span>
+            </div>
+            <div 
+              className={`flex flex-col items-center ${activeTab === "features" ? "scale-110" : ""}`}
               onClick={() => setActiveTab("features")}
-              className="flex flex-col items-center font-bold"
-              icon={<span className="text-lg">✨</span>}
             >
-              Features
-            </Button>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "features" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
+                <span className="text-xl">✨</span>
+              </div>
+              <span className={`text-xs font-extrabold ${activeTab === "features" ? "text-black" : "text-black/60"}`}>Features</span>
+            </div>
           </div>
         </nav>
         

@@ -29,7 +29,7 @@ export function TeamSelection() {
             <div className="w-24 h-24 rounded-full bg-gradient-to-r from-red-500 to-yellow-500 mb-4 flex items-center justify-center shadow-md overflow-hidden">
               <div className="w-full h-full bg-[url('/flag-ghana.png')] bg-cover bg-center"></div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Team Ghana</h3>
+            <h3 className="text-xl font-bold mb-2 text-black">Team Ghana</h3>
             <p className="text-gray-600 text-center mb-4">Masters of authentic Jollof with the perfect balance of flavors</p>
             <div className="flex space-x-2">
               <span className="inline-block px-2 py-1 bg-yellow-300 text-black font-bold text-sm rounded-full border border-black">Rich</span>
@@ -48,7 +48,7 @@ export function TeamSelection() {
             <div className="w-24 h-24 rounded-full bg-gradient-to-r from-green-500 to-white mb-4 flex items-center justify-center shadow-md overflow-hidden">
               <div className="w-full h-full bg-[url('/flag-nigeria.png')] bg-cover bg-center"></div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Team Nigeria</h3>
+            <h3 className="text-xl font-bold mb-2 text-black">Team Nigeria</h3>
             <p className="text-gray-600 text-center mb-4">Bold flavors with the perfect spice level that made Jollof famous</p>
             <div className="flex space-x-2">
               <span className="inline-block px-2 py-1 bg-green-300 text-black font-bold text-sm rounded-full border border-black">Spicy</span>
