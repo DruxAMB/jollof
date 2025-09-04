@@ -26,9 +26,11 @@ export function CountdownTimer({
   };
 
   // Calculate percentage for progress ring
-  const percentage = (timeLeft / seconds) * 100;
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
+  
+  // Guard against division by zero or invalid values
+  const percentage = seconds > 0 ? (timeLeft / seconds) * 100 : 0;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   useEffect(() => {
@@ -87,8 +89,8 @@ export function CountdownTimer({
             fill="transparent"
             strokeWidth="8"
             className={`${getTimerColor()} transition-all duration-1000 ease-linear`}
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
+            strokeDasharray={String(circumference)}
+            strokeDashoffset={String(strokeDashoffset)}
             strokeLinecap="round"
           />
         </svg>
