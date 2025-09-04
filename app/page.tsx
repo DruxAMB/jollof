@@ -97,17 +97,21 @@ export default function App() {
           <div>
             <div className="flex items-center space-x-2">
               <Wallet className="z-10">
-                <ConnectWallet>
-                  <Name className="text-inherit" />
+                <ConnectWallet 
+                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full font-medium transition-colors duration-200"
+                  disconnectedLabel="Connect Wallet"
+                >
+                  <Avatar className="h-5 w-5 mr-2" />
+                  <Name className="text-white" />
                 </ConnectWallet>
                 <WalletDropdown>
-                  <Identity className="px-4 pt-3 pb-2" hasCopyAddressOnClick>
+                  <Identity className="px-4 pt-3 pb-2 hover:bg-amber-50" hasCopyAddressOnClick>
                     <Avatar />
                     <Name />
                     <Address />
                     <EthBalance />
                   </Identity>
-                  <WalletDropdownDisconnect />
+                  <WalletDropdownDisconnect className="hover:bg-amber-50 text-red-600" />
                 </WalletDropdown>
               </Wallet>
             </div>
