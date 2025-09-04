@@ -19,7 +19,6 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { useGamePhase } from "@/lib/game/phase-context";
 import { Button } from "./components/ui/Button";
 import { Home } from "./components/ui/Home";
 import { Features } from "./components/ui/Features";
@@ -111,26 +110,28 @@ export default function App() {
       <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>
-            <div className="flex items-center space-x-2">
-              <Wallet className="z-10">
-                <ConnectWallet 
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full font-medium transition-colors duration-200"
-                  disconnectedLabel="Connect Wallet"
-                >
-                  <Avatar className="h-5 w-5 mr-2" />
-                  <Name className="text-white" />
-                </ConnectWallet>
-                <WalletDropdown>
-                  <Identity className="px-4 pt-3 pb-2 hover:bg-amber-50" hasCopyAddressOnClick>
-                    <Avatar />
-                    <Name />
-                    <Address />
-                    <EthBalance />
-                  </Identity>
-                  <WalletDropdownDisconnect className="hover:bg-amber-50 text-red-600" />
-                </WalletDropdown>
-              </Wallet>
-            </div>
+            {activeTab === "home" && (
+              <div className="flex items-center space-x-2">
+                <Wallet className="z-10">
+                  <ConnectWallet 
+                    className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full font-medium transition-colors duration-200"
+                    disconnectedLabel="Connect Wallet"
+                  >
+                    <Avatar className="h-5 w-5 mr-2" />
+                    <Name className="text-white" />
+                  </ConnectWallet>
+                  <WalletDropdown>
+                    <Identity className="px-4 pt-3 pb-2 hover:bg-amber-50" hasCopyAddressOnClick>
+                      <Avatar />
+                      <Name />
+                      <Address />
+                      <EthBalance />
+                    </Identity>
+                    <WalletDropdownDisconnect className="hover:bg-amber-50 text-red-600" />
+                  </WalletDropdown>
+                </Wallet>
+              </div>
+            )}
           </div>
           <div>{saveFrameButton}</div>
         </header>

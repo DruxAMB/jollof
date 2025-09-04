@@ -10,14 +10,14 @@ export function TeamSelection() {
   
   const handleSelectTeam = (team: TeamType) => {
     dispatch({ type: 'SELECT_TEAM', payload: team });
+    dispatch({ type: 'START_GAME' });
   };
   
   return (
     <div className="flex flex-col items-center justify-start px-4 py-8 w-full">
       <div className="text-center my-8">
-        <h1 className="text-3xl font-extrabold text-black mb-3 uppercase">Jollof Wars</h1>
-        <p className="text-2xl text-black font-bold mb-2">Which country cooks the best Jollof rice?</p>
-        <p className="text-lg text-amber-700">Select your team and prove it!</p>
+        <h1 className="text-2xl font-extrabold text-black mb-3 uppercase">Which country cooks the best Jollof rice?</h1>
+        <p className="text-amber-700">Select your team and prove it!</p>
       </div>
       
       <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -60,18 +60,7 @@ export function TeamSelection() {
         </Card>
       </div>
       
-      {state.team && (
-        <div className="mt-8">
-          <Button 
-            variant="play" 
-            size="lg" 
-            onClick={() => dispatch({ type: 'START_GAME' })}
-            className="px-12 w-full max-w-xs"
-          >
-            COOK!
-          </Button>
-        </div>
-      )}
+      {/* Team selection now automatically starts the game */}
     </div>
   );
 }
