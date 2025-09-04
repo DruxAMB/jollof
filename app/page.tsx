@@ -209,7 +209,10 @@ export default function App() {
             </div>
             <div 
               className={`flex flex-col items-center ${gameModalOpen ? "scale-110" : ""}`}
-              onClick={() => setGameModalOpen(true)}
+              onClick={() => {
+                setGameModalOpen(true);
+                setLeaderboardModalOpen(false);
+              }}
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${gameModalOpen ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
                 <span className="text-xl">🍚</span>
@@ -218,7 +221,10 @@ export default function App() {
             </div>
             <div 
               className={`flex flex-col items-center ${leaderboardModalOpen ? "scale-110" : ""}`}
-              onClick={() => setLeaderboardModalOpen(true)}
+              onClick={() => {
+                setLeaderboardModalOpen(true);
+                setGameModalOpen(false);
+              }}
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${leaderboardModalOpen ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
                 <span className="text-xl">🏆</span>
