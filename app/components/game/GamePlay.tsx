@@ -19,11 +19,14 @@ export function GamePlay() {
     // Start game timer when component mounts
     // Update by 1 second every 1 second to ensure the timer display works correctly
     const timer = setInterval(() => {
+      console.log('Dispatching UPDATE_TIMER, current timer:', state.timer);
       dispatch({ type: 'UPDATE_TIMER', payload: 1 });
+      // Log after dispatch to confirm the action was sent
+      setTimeout(() => console.log('Timer after dispatch:', state.timer), 50);
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [dispatch]);
+  }, [dispatch, state.timer]);
   
   useEffect(() => {
     // Update progress based on completed actions
@@ -114,6 +117,7 @@ export function GamePlay() {
       <div className="flex items-center justify-between p-4 bg-white bg-opacity-90 shadow-md">
         <div>
           <CountdownTimer
+            key={`timer-${state.timer}`} /* Force re-render when timer changes */
             seconds={state.timer}
             onComplete={() => dispatch({ type: 'END_GAME' })}
             size="md"
