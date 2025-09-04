@@ -19,8 +19,9 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useMemo, useState, useCallback } from "react";
-import { Button, Icon, Home, Features } from "./components/DemoComponents";
-import Image from "next/image";
+import { Button } from "./components/ui/Button";
+import { Home } from "./components/ui/Home";
+import { Features } from "./components/ui/Features";
 import Link from "next/link";
 
 export default function App() {
@@ -49,8 +50,8 @@ export default function App() {
           variant="ghost"
           size="sm"
           onClick={handleAddFrame}
-          className="text-[var(--app-accent)] p-4"
-          icon={<Icon name="plus" size="sm" />}
+          className="text-amber-600 p-4"
+          icon={<span>➕</span>}
         >
           Save Frame
         </Button>
@@ -59,8 +60,8 @@ export default function App() {
 
     if (frameAdded) {
       return (
-        <div className="flex items-center space-x-1 text-sm font-medium text-[#0052FF] animate-fade-out">
-          <Icon name="check" size="sm" className="text-[#0052FF]" />
+        <div className="flex items-center space-x-1 text-sm font-medium text-amber-600 animate-fade-out">
+          <span>✓</span>
           <span>Saved</span>
         </div>
       );
@@ -70,7 +71,7 @@ export default function App() {
   }, [context, frameAdded, handleAddFrame]);
 
   return (
-    <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
+    <div className="flex flex-col min-h-screen font-sans text-amber-900 bg-gradient-to-br from-amber-50 to-orange-100">
       <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>
@@ -98,62 +99,75 @@ export default function App() {
           {activeTab === "home" && <Home setActiveTab={setActiveTab} />}
           {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
           {activeTab === "leaderboard" && (
-            <div className="flex flex-col items-center justify-center mt-8">
-              <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold mb-2">Jollof Wars Leaderboard</h1>
-                <p className="text-sm text-gray-600 mb-4">
-                  See who's cooking the best Jollof in the competition!
-                </p>
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl shadow-md border border-amber-200 overflow-hidden">
+                <div className="p-6">
+                  <div className="text-center mb-6">
+                    <h1 className="text-2xl font-bold text-amber-800 mb-2">Jollof Wars Leaderboard</h1>
+                    <p className="text-amber-700 mb-6">
+                      See who's cooking the best Jollof in the competition!
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Link href="/leaderboard" passHref>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="px-8 mb-4"
+                      >
+                        View Leaderboard
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost"
+                      size="sm" 
+                      onClick={() => setActiveTab("home")} 
+                      className="mt-2"
+                    >
+                      Back to Home
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <Link href="/leaderboard" passHref>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="px-8"
-                >
-                  View Leaderboard
-                </Button>
-              </Link>
-              <Button 
-                variant="ghost"
-                size="sm" 
-                onClick={() => setActiveTab("home")} 
-                className="mt-4"
-              >
-                Back to Home
-              </Button>
             </div>
           )}
           {activeTab === "game" && (
-            <div className="flex flex-col items-center justify-center mt-8">
-              <div className="text-center mb-6">
-                <h1 className="text-2xl font-bold mb-2">Jollof Wars</h1>
-                <p className="text-sm text-gray-600 mb-4">
-                  The ultimate Ghana vs Nigeria Jollof cooking competition!
-                </p>
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl shadow-md border border-amber-200 overflow-hidden">
+                <div className="p-6">
+                  <div className="text-center mb-6">
+                    <h1 className="text-2xl font-bold text-amber-800 mb-2">Jollof Wars</h1>
+                    <p className="text-amber-700 mb-6">
+                      The ultimate Ghana vs Nigeria Jollof cooking competition!
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Link href="/game" passHref>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="px-8 mb-4"
+                        icon={<span className="mr-1">🍚</span>}
+                      >
+                        Play Now
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="ghost"
+                      size="sm" 
+                      onClick={() => setActiveTab("home")} 
+                      className="mt-2"
+                    >
+                      Back to Home
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <Link href="/game" passHref>
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="px-8"
-                >
-                  Play Now
-                </Button>
-              </Link>
-              <Button 
-                variant="ghost"
-                size="sm" 
-                onClick={() => setActiveTab("home")} 
-                className="mt-4"
-              >
-                Back to Home
-              </Button>
             </div>
           )}
         </main>
 
-        <nav className="mt-4 border-t border-gray-200 pt-4">
+        <nav className="mt-4 border-t border-amber-200 pt-4">
           <div className="flex justify-around">
             <Button
               variant={activeTab === "home" ? "primary" : "ghost"}
@@ -198,7 +212,7 @@ export default function App() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-[var(--ock-text-foreground-muted)] text-xs"
+            className="text-amber-700 text-xs"
             onClick={() => openUrl("https://base.org/builders/minikit")}
           >
             Built on Base with MiniKit
