@@ -12,6 +12,7 @@ import {
 export type GameReducerAction =
   | { type: 'SELECT_TEAM'; payload: TeamType }
   | { type: 'START_GAME' }
+  | { type: 'BEGIN_PLAYING' } 
   | { type: 'PERFORM_ACTION'; payload: { actionType: string; value?: string } }
   | { type: 'COMPLETE_ACTION'; payload: { success: boolean; timing: number } }
   | { type: 'UPDATE_TIMER'; payload: number }
@@ -94,6 +95,14 @@ export function gameReducer(state: GameState, action: GameReducerAction): GameSt
         score: initialScore,
         combo: 0,
         completedActions: 0,
+      };
+      
+    case 'BEGIN_PLAYING':
+      // Transition from countdown to playing phase
+      return {
+        ...state,
+        phase: 'playing',
+        timer: state.settings.roundDuration,
       };
       
     case 'PERFORM_ACTION':

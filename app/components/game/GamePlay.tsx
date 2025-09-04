@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useGameContext } from "@/lib/game/context";
 import { CookingPot } from "./CookingPot";
 import { Ingredients } from "./Ingredients";
 import { ActionPrompt } from "./ActionPrompt";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { CountdownTimer } from "./CountdownTimer";
+import { ActionFeedback } from "./ActionFeedback";
 import { IngredientType, SwipeDirection } from "@/lib/game/types";
 
 export function GamePlay() {
   const { state, dispatch } = useGameContext();
   const [progressPercentage, setProgressPercentage] = useState(0);
+  const [actionFeedback, setActionFeedback] = useState({ show: false, success: false });
   
   useEffect(() => {
     // Start game timer when component mounts
@@ -31,6 +33,10 @@ export function GamePlay() {
     }
   }, [state.completedActions, state.actions.length]);
   
+  const handleActionFeedbackComplete = useCallback(() => {
+    setActionFeedback({ show: false, success: false });
+  }, []);
+  
   const handleIngredientTap = (ingredient: IngredientType) => {
     // Only process if current action is a tap action
     if (state.nextAction?.type === 'tap') {
@@ -42,6 +48,9 @@ export function GamePlay() {
       
       // Check if it was the right ingredient
       const success = state.nextAction.ingredient === ingredient;
+      
+      // Show feedback animation
+      setActionFeedback({ show: true, success });
       
       // Calculate timing - in a real game we'd measure actual time since action appeared
       // For now we'll use a random value to simulate timing
@@ -67,6 +76,9 @@ export function GamePlay() {
       // Check if it was the right direction
       const success = state.nextAction.direction === direction;
       
+      // Show feedback animation
+      setActionFeedback({ show: true, success });
+      
       // Calculate timing - same as above, using random for demo
       const timing = Math.floor(Math.random() * 1000);
       
@@ -90,7 +102,14 @@ export function GamePlay() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Visual feedback for actions */}
+      <ActionFeedback 
+        success={actionFeedback.success}
+        show={actionFeedback.show}
+        onAnimationComplete={handleActionFeedbackComplete}
+      />
+      
       {/* Header with timer and score */}
       <div className="flex items-center justify-between p-4 bg-white bg-opacity-90 shadow-md">
         <div>
