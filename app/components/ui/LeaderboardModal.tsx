@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card } from "./Card";
 import { Button } from "./Button";
-import { getLeaderboard } from "@/lib/leaderboard";
+import { fetchLeaderboard } from "@/lib/leaderboard";
 
 type Team = "nigeria" | "ghana";
 type LeaderboardEntry = {
@@ -19,8 +19,17 @@ export function LeaderboardModal() {
   const [selectedTeam, setSelectedTeam] = useState<Team | "all">("all");
   
   useEffect(() => {
-    const scores = getLeaderboard();
-    setLeaderboard(scores);
+    async function loadLeaderboard() {
+      try {
+        const scores = await fetchLeaderboard();
+        setLeaderboard(scores);
+      } catch (error) {
+        console.error("Error loading leaderboard:", error);
+        setLeaderboard([]);
+      }
+    }
+    
+    loadLeaderboard();
   }, []);
   
   const filteredScores = leaderboard.filter(

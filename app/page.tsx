@@ -194,8 +194,10 @@ export default function App() {
           )}
         </main>
 
-        <nav className="mt-4 border-t border-amber-200 pt-4">
-          <div className="flex justify-around">
+        <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}
+        
+        <nav className="fixed bottom-0 left-0 right-0 z-10 border-t border-amber-200 bg-gradient-to-r from-amber-50 to-orange-100 py-2 px-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+          <div className="flex justify-around max-w-md mx-auto">
             <Button
               variant={activeTab === "home" ? "primary" : "ghost"}
               size="sm"
