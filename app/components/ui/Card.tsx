@@ -24,15 +24,15 @@ export function Card({
 
   return (
     <div
-      className={`bg-white rounded-xl shadow-md border border-amber-100 overflow-hidden transition-all hover:shadow-lg ${className} ${onClick ? "cursor-pointer" : ""}`}
+      className={`bg-cream-50 rounded-xl shadow-md border-2 border-black overflow-hidden transition-all hover:shadow-lg ${className} ${onClick ? "cursor-pointer" : ""}`}
       onClick={onClick}
       onKeyDown={onClick ? handleKeyDown : undefined}
       tabIndex={onClick ? 0 : undefined}
       role={onClick ? "button" : undefined}
     >
       {title && (
-        <div className="px-5 py-3 border-b border-amber-100 bg-amber-50">
-          <h3 className="text-lg font-medium text-amber-800">
+        <div className="px-5 py-3 border-b-2 border-black bg-yellow-200">
+          <h3 className="text-lg font-bold text-black uppercase">
             {title}
           </h3>
         </div>

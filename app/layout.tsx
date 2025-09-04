@@ -3,6 +3,14 @@ import "@coinbase/onchainkit/styles.css";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Nunito } from "next/font/google";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-nunito",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -41,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="bg-background">
+    <html lang="en" className={nunito.variable}>
+      <body className="bg-background font-nunito">
         <Providers>{children}</Providers>
       </body>
     </html>

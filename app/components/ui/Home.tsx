@@ -13,7 +13,7 @@ type HomeProps = {
 export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps) {
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200">
+      <Card className="bg-cream-50 border-2 border-black rounded-xl shadow-lg">
         <div className="flex flex-col items-center mb-4">
           <div className="relative w-full max-w-xs h-48 mb-4">
             <Image 
@@ -26,8 +26,8 @@ export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps)
           </div>
         </div>
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-amber-800 mb-2">Welcome to Jollof Wars</h1>
-          <p className="text-amber-700 mb-4">
+          <h1 className="text-3xl font-extrabold text-black mb-2">Welcome to Jollof Wars</h1>
+          <p className="text-black mb-4">
             The ultimate Ghana vs Nigeria Jollof cooking competition! Show off your
             cooking skills and compete for the title of Jollof Champion.
           </p>
@@ -35,23 +35,23 @@ export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps)
         <div className="flex flex-wrap gap-3 justify-center">
           <Button
             onClick={onOpenGame}
-            icon={<span className="mr-1">🍚</span>}
-            variant="primary"
+            variant="play"
             size="lg"
+            className="w-full max-w-xs"
           >
-            Play Now
+            PLAY
           </Button>
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onOpenLeaderboard}
-            icon={<span className="mr-1">🏆</span>}
+            uppercase
           >
             Leaderboard
           </Button>
           <Button
-            variant="ghost"
+            variant="outline"
             onClick={() => setActiveTab("features")}
-            icon={<span className="mr-1">✨</span>}
+            uppercase
           >
             Features
           </Button>

@@ -171,13 +171,12 @@ export default function App() {
                   </div>
                   <div className="flex flex-col items-center">
                     <Button
-                      variant="primary"
+                      variant="play"
                       size="lg"
-                      className="px-8 mb-4"
-                      icon={<span className="mr-1">🍚</span>}
+                      className="mb-4 w-full max-w-xs"
                       onClick={() => setGameModalOpen(true)}
                     >
-                      Play Now
+                      PLAY
                     </Button>
                     <Button 
                       variant="ghost"
@@ -196,40 +195,40 @@ export default function App() {
 
         <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}
         
-        <nav className="fixed bottom-0 left-0 right-0 z-10 border-t border-amber-200 bg-gradient-to-r from-amber-50 to-orange-100 py-2 px-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        <nav className="fixed bottom-0 left-0 right-0 z-10 border-t-2 border-black bg-yellow-300 py-2 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
           <div className="flex justify-around max-w-md mx-auto">
             <Button
-              variant={activeTab === "home" ? "primary" : "ghost"}
+              variant={activeTab === "home" ? "primary" : "outline"}
               size="sm"
               onClick={() => setActiveTab("home")}
-              className="flex flex-col items-center"
-              icon={<span className="text-lg">🏠</span>}
+              className="flex flex-col items-center font-bold"
+              icon={<span className="text-lg">🏚️</span>}
             >
               Home
             </Button>
             <Button
-              variant={gameModalOpen ? "primary" : "ghost"}
+              variant={gameModalOpen ? "primary" : "outline"}
               size="sm"
               onClick={() => setGameModalOpen(true)}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center font-bold"
               icon={<span className="text-lg">🍚</span>}
             >
               Game
             </Button>
             <Button
-              variant={leaderboardModalOpen ? "primary" : "ghost"}
+              variant={leaderboardModalOpen ? "primary" : "outline"}
               size="sm"
               onClick={() => setLeaderboardModalOpen(true)}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center font-bold"
               icon={<span className="text-lg">🏆</span>}
             >
               Ranks
             </Button>
             <Button
-              variant={activeTab === "features" ? "primary" : "ghost"}
+              variant={activeTab === "features" ? "primary" : "outline"}
               size="sm"
               onClick={() => setActiveTab("features")}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center font-bold"
               icon={<span className="text-lg">✨</span>}
             >
               Features

@@ -4,13 +4,14 @@ import { type ReactNode } from "react";
 
 type ButtonProps = {
   children: ReactNode;
-  variant?: "primary" | "secondary" | "outline" | "ghost";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "play";
   size?: "sm" | "md" | "lg";
   className?: string;
   onClick?: () => void;
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   icon?: ReactNode;
+  uppercase?: boolean;
 }
 
 export function Button({
@@ -22,31 +23,34 @@ export function Button({
   disabled = false,
   type = "button",
   icon,
+  uppercase = false,
 }: ButtonProps) {
   const baseClasses =
-    "inline-flex items-center justify-center font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center font-bold transition-colors focus:outline-none disabled:opacity-50 disabled:pointer-events-none";
 
   const variantClasses = {
     primary:
-      "bg-amber-600 hover:bg-amber-700 text-white",
+      "bg-yellow-400 hover:bg-yellow-500 text-black shadow-md border-2 border-black",
     secondary:
-      "bg-orange-200 hover:bg-orange-300 text-amber-800",
+      "bg-green-400 hover:bg-green-500 text-black shadow-md border-2 border-black",
     outline:
-      "border border-amber-600 hover:bg-amber-50 text-amber-600",
+      "bg-cream-100 border-2 border-black hover:bg-cream-200 text-black shadow-md",
     ghost:
-      "hover:bg-amber-50 text-gray-600",
+      "hover:bg-cream-100 text-black",
+    play:
+      "bg-yellow-400 hover:bg-yellow-500 text-black text-xl font-extrabold shadow-md uppercase tracking-wider border-2 border-black",
   };
 
   const sizeClasses = {
-    sm: "text-xs px-2.5 py-1.5 rounded-md",
-    md: "text-sm px-4 py-2 rounded-lg",
-    lg: "text-base px-6 py-3 rounded-lg",
+    sm: "text-xs px-2.5 py-1.5 rounded-full",
+    md: "text-sm px-5 py-2 rounded-full",
+    lg: "text-base px-8 py-3 rounded-full",
   };
 
   return (
     <button
       type={type}
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${uppercase ? 'uppercase' : ''} ${className}`}
       onClick={onClick}
       disabled={disabled}
     >

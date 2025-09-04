@@ -47,8 +47,8 @@ export function LeaderboardModal() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-amber-800 mb-4">Jollof Wars Leaderboard</h1>
-        <p className="text-amber-700">See who's cooking the best Jollof in town!</p>
+        <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Jollof Wars Leaderboard</h1>
+        <p className="text-black font-bold">See who's cooking the best Jollof in town!</p>
       </div>
       
       <div className="flex justify-center mb-6">
@@ -56,21 +56,21 @@ export function LeaderboardModal() {
           <Button 
             variant={selectedTeam === "all" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("all")}
-            className="rounded-r-none"
+            className="rounded-r-none uppercase"
           >
             All Teams
           </Button>
           <Button 
             variant={selectedTeam === "nigeria" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("nigeria")}
-            className="rounded-none border-l-0 border-r-0"
+            className="rounded-none border-l-0 border-r-0 uppercase"
           >
             Team Nigeria
           </Button>
           <Button 
             variant={selectedTeam === "ghana" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("ghana")}
-            className="rounded-l-none"
+            className="rounded-l-none uppercase"
           >
             Team Ghana
           </Button>
@@ -82,27 +82,27 @@ export function LeaderboardModal() {
           <Card title="Team Nigeria 🇳🇬" className="mb-6">
             {nigeriaScores.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full">
+                <table className="min-w-full border-2 border-black">
                   <thead>
-                    <tr>
-                      <th className="px-4 py-2 text-left text-amber-800">Rank</th>
-                      <th className="px-4 py-2 text-left text-amber-800">Name</th>
-                      <th className="px-4 py-2 text-right text-amber-800">Score</th>
+                    <tr className="bg-yellow-300 border-b-2 border-black">
+                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Rank</th>
+                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Name</th>
+                      <th className="px-4 py-2 text-right text-black font-extrabold uppercase">Score</th>
                     </tr>
                   </thead>
                   <tbody>
                     {nigeriaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-amber-50" : ""}>
-                        <td className="px-4 py-2 font-medium">{index + 1}</td>
-                        <td className="px-4 py-2">{entry.playerName}</td>
-                        <td className="px-4 py-2 text-right font-bold">{entry.score}</td>
+                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid black"}}>
+                        <td className="px-4 py-2 font-bold">{index + 1}</td>
+                        <td className="px-4 py-2 font-medium">{entry.playerName}</td>
+                        <td className="px-4 py-2 text-right font-extrabold">{entry.score}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-center py-4 text-amber-700">No scores yet for Team Nigeria</p>
+              <p className="text-center py-4 text-black font-bold">No scores yet for Team Nigeria!</p>
             )}
           </Card>
         )}
@@ -111,27 +111,27 @@ export function LeaderboardModal() {
           <Card title="Team Ghana 🇬🇭" className="mb-6">
             {ghanaScores.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full">
+                <table className="min-w-full border-2 border-black">
                   <thead>
-                    <tr>
-                      <th className="px-4 py-2 text-left text-amber-800">Rank</th>
-                      <th className="px-4 py-2 text-left text-amber-800">Name</th>
-                      <th className="px-4 py-2 text-right text-amber-800">Score</th>
+                    <tr className="bg-green-300 border-b-2 border-black">
+                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Rank</th>
+                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Name</th>
+                      <th className="px-4 py-2 text-right text-black font-extrabold uppercase">Score</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ghanaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-amber-50" : ""}>
-                        <td className="px-4 py-2 font-medium">{index + 1}</td>
-                        <td className="px-4 py-2">{entry.playerName}</td>
-                        <td className="px-4 py-2 text-right font-bold">{entry.score}</td>
+                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid black"}}>
+                        <td className="px-4 py-2 font-bold">{index + 1}</td>
+                        <td className="px-4 py-2 font-medium">{entry.playerName}</td>
+                        <td className="px-4 py-2 text-right font-extrabold">{entry.score}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-center py-4 text-amber-700">No scores yet for Team Ghana</p>
+              <p className="text-center py-4 text-black font-bold">No scores yet for Team Ghana!</p>
             )}
           </Card>
         )}

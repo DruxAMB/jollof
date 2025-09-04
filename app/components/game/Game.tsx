@@ -42,9 +42,11 @@ export function Game() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100">
-      <div className="container mx-auto">
-        {renderGamePhase()}
+    <div className="min-h-screen bg-cream-50">
+      <div className="container mx-auto px-4 py-6">
+        <div className="bg-cream-50 border-2 border-black rounded-xl shadow-lg p-4">
+          {renderGamePhase()}
+        </div>
       </div>
     </div>
   );
