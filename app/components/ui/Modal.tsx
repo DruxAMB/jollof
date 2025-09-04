@@ -50,17 +50,15 @@ export function Modal({
   
   const modalContent = (
     <div 
-      className="fixed inset-0 z-60 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 animate-fade-in"
+      className="fixed inset-0 z-60 flex flex-col bg-gradient-to-br from-amber-50 to-orange-100 animate-fade-in"
     >
       {title && (
-        <div className="absolute top-0 left-0 right-0 p-4 text-center bg-white/80 backdrop-blur-sm border-b border-amber-200">
+        <div className="sticky top-0 left-0 right-0 p-4 text-center bg-white/80 backdrop-blur-sm border-b border-amber-200 z-10">
           <h2 className="text-xl font-bold text-amber-800">{title}</h2>
         </div>
       )}
       
-      {/* Close button removed - using tab navigation instead */}
-      
-      <div className="w-full h-full overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pb-16">
         {children}
       </div>
     </div>

@@ -13,10 +13,10 @@ export function TeamSelection() {
   };
   
   return (
-    <div className="flex flex-col items-center justify-start px-4 pt-8">
-      <div className="text-center mb-8">
+    <div className="flex flex-col items-center justify-start px-4 py-8 w-full">
+      <div className="text-center my-8">
         <h1 className="text-3xl font-extrabold text-black mb-3 uppercase">Jollof Wars</h1>
-        <p className="text-xl text-black font-bold">Choose your team and cook the best Jollof rice!</p>
+        <p className="text-lg text-black font-bold">Choose your team and cook the best Jollof rice!</p>
       </div>
       
       <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">

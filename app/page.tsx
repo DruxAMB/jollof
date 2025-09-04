@@ -19,6 +19,7 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useEffect, useMemo, useState, useCallback } from "react";
+import { useGamePhase } from "@/lib/game/phase-context";
 import { Button } from "./components/ui/Button";
 import { Home } from "./components/ui/Home";
 import { Features } from "./components/ui/Features";
@@ -32,6 +33,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("home");
   const [gameModalOpen, setGameModalOpen] = useState(false);
   const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false);
+  
+  // Track the active game phase locally
+  const [activeGamePhase, setActiveGamePhase] = useState<string>("team_selection");
+  
+  // Listen for game modal open/close to reset phase tracking
+  useEffect(() => {
+    if (!gameModalOpen) {
+      setActiveGamePhase("team_selection");
+    }
+  }, [gameModalOpen]);
+  
+  // Function to update the active game phase (will be passed to GameModal)
+  const updateGamePhase = useCallback((phase: string) => {
+    setActiveGamePhase(phase);
+  }, []);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -81,7 +97,7 @@ export default function App() {
         isOpen={gameModalOpen}
         onClose={() => setGameModalOpen(false)}
       >
-        <GameModal />
+        <GameModal onPhaseChange={updateGamePhase} />
       </Modal>
       
       {/* Leaderboard Modal */}
@@ -196,7 +212,7 @@ export default function App() {
 
         <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}
         
-        <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t-2 border-black bg-yellow-300 py-3 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)] ${gameModalOpen ? 'hidden' : ''}`}>
+        <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t-2 border-black bg-yellow-300 py-3 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)] ${gameModalOpen && activeGamePhase === "playing" ? 'hidden' : ''}`}>
           <div className="flex justify-around max-w-md mx-auto">
             <div 
               className={`flex flex-col items-center ${activeTab === "home" ? "scale-110" : ""}`}
