@@ -15,9 +15,10 @@ export function GamePlay() {
   
   useEffect(() => {
     // Start game timer when component mounts
+    // Update by 1 second every 1 second to ensure the timer display works correctly
     const timer = setInterval(() => {
-      dispatch({ type: 'UPDATE_TIMER', payload: 0.1 });
-    }, 100);
+      dispatch({ type: 'UPDATE_TIMER', payload: 1 });
+    }, 1000);
     
     return () => clearInterval(timer);
   }, [dispatch]);

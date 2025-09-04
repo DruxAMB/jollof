@@ -192,7 +192,7 @@ export default function App() {
 
         <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}
         
-        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-black bg-yellow-300 py-3 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
+        <nav className={`fixed bottom-0 left-0 right-0 z-50 border-t-2 border-black bg-yellow-300 py-3 px-4 shadow-[0_-4px_6px_rgba(0,0,0,0.1)] ${gameModalOpen ? 'hidden' : ''}`}>
           <div className="flex justify-around max-w-md mx-auto">
             <div 
               className={`flex flex-col items-center ${activeTab === "home" ? "scale-110" : ""}`}

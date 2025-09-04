@@ -50,7 +50,7 @@ const initialScore: GameScore = {
 export const initialGameState: GameState = {
   phase: 'team_selection',
   team: null,
-  timer: 0,
+  timer: 30, // Default to game round duration
   score: initialScore,
   combo: 0,
   actions: [],
