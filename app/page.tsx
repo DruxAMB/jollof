@@ -22,12 +22,16 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "./components/ui/Button";
 import { Home } from "./components/ui/Home";
 import { Features } from "./components/ui/Features";
-import Link from "next/link";
+import { Modal } from "./components/ui/Modal";
+import { GameModal } from "./components/ui/GameModal";
+import { LeaderboardModal } from "./components/ui/LeaderboardModal";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
+  const [gameModalOpen, setGameModalOpen] = useState(false);
+  const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false);
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
@@ -72,6 +76,25 @@ export default function App() {
 
   return (
     <div className="flex flex-col min-h-screen font-sans text-amber-900 bg-gradient-to-br from-amber-50 to-orange-100">
+      {/* Game Modal */}
+      <Modal
+        isOpen={gameModalOpen}
+        onClose={() => setGameModalOpen(false)}
+        showCloseButton={true}
+      >
+        <GameModal />
+      </Modal>
+      
+      {/* Leaderboard Modal */}
+      <Modal
+        isOpen={leaderboardModalOpen}
+        onClose={() => setLeaderboardModalOpen(false)}
+        showCloseButton={true}
+        title="Jollof Wars Leaderboard"
+      >
+        <LeaderboardModal />
+      </Modal>
+      
       <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>
@@ -96,7 +119,12 @@ export default function App() {
         </header>
 
         <main className="flex-1">
-          {activeTab === "home" && <Home setActiveTab={setActiveTab} />}
+          {activeTab === "home" && 
+            <Home 
+              setActiveTab={setActiveTab} 
+              onOpenGame={() => setGameModalOpen(true)} 
+              onOpenLeaderboard={() => setLeaderboardModalOpen(true)} 
+            />}
           {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
           {activeTab === "leaderboard" && (
             <div className="space-y-6 animate-fade-in">
@@ -109,15 +137,15 @@ export default function App() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center">
-                    <Link href="/leaderboard" passHref>
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        className="px-8 mb-4"
-                      >
-                        View Leaderboard
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="px-8 mb-4"
+                      onClick={() => setLeaderboardModalOpen(true)}
+                      icon={<span className="mr-1">🏆</span>}
+                    >
+                      View Leaderboard
+                    </Button>
                     <Button 
                       variant="ghost"
                       size="sm" 
@@ -142,16 +170,15 @@ export default function App() {
                     </p>
                   </div>
                   <div className="flex flex-col items-center">
-                    <Link href="/game" passHref>
-                      <Button
-                        variant="primary"
-                        size="lg"
-                        className="px-8 mb-4"
-                        icon={<span className="mr-1">🍚</span>}
-                      >
-                        Play Now
-                      </Button>
-                    </Link>
+                    <Button
+                      variant="primary"
+                      size="lg"
+                      className="px-8 mb-4"
+                      icon={<span className="mr-1">🍚</span>}
+                      onClick={() => setGameModalOpen(true)}
+                    >
+                      Play Now
+                    </Button>
                     <Button 
                       variant="ghost"
                       size="sm" 
@@ -179,18 +206,18 @@ export default function App() {
               Home
             </Button>
             <Button
-              variant={activeTab === "game" ? "primary" : "ghost"}
+              variant={gameModalOpen ? "primary" : "ghost"}
               size="sm"
-              onClick={() => setActiveTab("game")}
+              onClick={() => setGameModalOpen(true)}
               className="flex flex-col items-center"
               icon={<span className="text-lg">🍚</span>}
             >
               Game
             </Button>
             <Button
-              variant={activeTab === "leaderboard" ? "primary" : "ghost"}
+              variant={leaderboardModalOpen ? "primary" : "ghost"}
               size="sm"
-              onClick={() => setActiveTab("leaderboard")}
+              onClick={() => setLeaderboardModalOpen(true)}
               className="flex flex-col items-center"
               icon={<span className="text-lg">🏆</span>}
             >
@@ -208,7 +235,7 @@ export default function App() {
           </div>
         </nav>
         
-        <footer className="mt-2 pt-4 flex justify-center">
+        {/* <footer className="mt-2 pt-4 flex justify-center">
           <Button
             variant="ghost"
             size="sm"
@@ -217,8 +244,10 @@ export default function App() {
           >
             Built on Base with MiniKit
           </Button>
-        </footer>
+        </footer> */}
       </div>
     </div>
   );
 }
+
+// We don't need the game/page.tsx and leaderboard/page.tsx files anymore, since we're using modals

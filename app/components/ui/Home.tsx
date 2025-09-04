@@ -6,9 +6,11 @@ import Image from "next/image";
 
 type HomeProps = {
   setActiveTab: (tab: string) => void;
+  onOpenGame: () => void;
+  onOpenLeaderboard: () => void;
 };
 
-export function Home({ setActiveTab }: HomeProps) {
+export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps) {
   return (
     <div className="space-y-6 animate-fade-in">
       <Card className="bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200">
@@ -32,7 +34,7 @@ export function Home({ setActiveTab }: HomeProps) {
         </div>
         <div className="flex flex-wrap gap-3 justify-center">
           <Button
-            onClick={() => setActiveTab("game")}
+            onClick={onOpenGame}
             icon={<span className="mr-1">🍚</span>}
             variant="primary"
             size="lg"
@@ -41,7 +43,7 @@ export function Home({ setActiveTab }: HomeProps) {
           </Button>
           <Button
             variant="outline"
-            onClick={() => setActiveTab("leaderboard")}
+            onClick={onOpenLeaderboard}
             icon={<span className="mr-1">🏆</span>}
           >
             Leaderboard

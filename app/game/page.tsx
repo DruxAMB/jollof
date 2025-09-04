@@ -10,7 +10,7 @@ export default function GamePage() {
 
   // Mark the frame as ready when component mounts
   useEffect(() => {
-    setFrameReady(true);
+    setFrameReady();
   }, [setFrameReady]);
 
   return (
