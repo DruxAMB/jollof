@@ -71,13 +71,13 @@ export function CookingPot({
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       // Horizontal swipe
       if (deltaX > 0) {
-        onSwipe?.(SwipeDirection.RIGHT);
+        onSwipe?.('right');
       } else {
-        onSwipe?.(SwipeDirection.LEFT);
+        onSwipe?.('left');
       }
     } else {
       // Vertical or circular swipe - for our game, we'll consider this a stir
-      onSwipe?.(SwipeDirection.STIR);
+      onSwipe?.('stir');
     }
     
     setSwipeStart(null);
@@ -108,13 +108,13 @@ export function CookingPot({
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       // Horizontal swipe
       if (deltaX > 0) {
-        onSwipe?.(SwipeDirection.RIGHT);
+        onSwipe?.('right');
       } else {
-        onSwipe?.(SwipeDirection.LEFT);
+        onSwipe?.('left');
       }
     } else {
       // Vertical or circular swipe - for our game, we'll consider this a stir
-      onSwipe?.(SwipeDirection.STIR);
+      onSwipe?.('stir');
     }
     
     setSwipeStart(null);
