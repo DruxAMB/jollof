@@ -31,7 +31,7 @@ export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
-  const [gameModalOpen, setGameModalOpen] = useState(false);
+  const [gameModalOpen, setGameModalOpen] = useState(true); // Open game modal by default
   const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false);
   
   // Track the active game phase locally
@@ -143,71 +143,7 @@ export default function App() {
               onOpenLeaderboard={() => setLeaderboardModalOpen(true)} 
             />}
           {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
-          {activeTab === "leaderboard" && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl shadow-md border border-amber-200 overflow-hidden">
-                <div className="p-6">
-                  <div className="text-center mb-6">
-                    <h1 className="text-2xl font-bold text-amber-800 mb-2">Jollof Wars Leaderboard</h1>
-                    <p className="text-amber-700 mb-6">
-                      See who's cooking the best Jollof in the competition!
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      className="px-8 mb-4"
-                      onClick={() => setLeaderboardModalOpen(true)}
-                      icon={<span className="mr-1">🏆</span>}
-                    >
-                      View Leaderboard
-                    </Button>
-                    <Button 
-                      variant="ghost"
-                      size="sm" 
-                      onClick={() => setActiveTab("home")} 
-                      className="mt-2"
-                    >
-                      Back to Home
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-          {activeTab === "game" && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="bg-gradient-to-br from-amber-50 to-orange-100 rounded-xl shadow-md border border-amber-200 overflow-hidden">
-                <div className="p-6">
-                  <div className="text-center mb-6">
-                    <h1 className="text-2xl font-bold text-amber-800 mb-2">Jollof Wars</h1>
-                    <p className="text-amber-700 mb-6">
-                      The ultimate Ghana vs Nigeria Jollof cooking competition!
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <Button
-                      variant="play"
-                      size="lg"
-                      className="mb-4 w-full max-w-xs"
-                      onClick={() => setGameModalOpen(true)}
-                    >
-                      PLAY
-                    </Button>
-                    <Button 
-                      variant="ghost"
-                      size="sm" 
-                      onClick={() => setActiveTab("home")} 
-                      className="mt-2"
-                    >
-                      Back to Home
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Removed redundant leaderboard and game tab content */}
         </main>
 
         <div className="pb-16"></div> {/* Spacer to prevent content from being hidden behind fixed nav */}

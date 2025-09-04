@@ -16,7 +16,8 @@ export function TeamSelection() {
     <div className="flex flex-col items-center justify-start px-4 py-8 w-full">
       <div className="text-center my-8">
         <h1 className="text-3xl font-extrabold text-black mb-3 uppercase">Jollof Wars</h1>
-        <p className="text-lg text-black font-bold">Choose your team and cook the best Jollof rice!</p>
+        <p className="text-2xl text-black font-bold mb-2">Which country cooks the best Jollof rice?</p>
+        <p className="text-lg text-amber-700">Select your team and prove it!</p>
       </div>
       
       <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
