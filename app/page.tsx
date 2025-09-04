@@ -23,6 +23,7 @@ import { Button } from "./components/DemoComponents";
 import { Icon } from "./components/DemoComponents";
 import { Home } from "./components/DemoComponents";
 import { Features } from "./components/DemoComponents";
+import Link from "next/link";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
@@ -98,8 +99,103 @@ export default function App() {
         <main className="flex-1">
           {activeTab === "home" && <Home setActiveTab={setActiveTab} />}
           {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
+          {activeTab === "leaderboard" && (
+            <div className="flex flex-col items-center justify-center mt-8">
+              <div className="text-center mb-6">
+                <h1 className="text-2xl font-bold mb-2">Jollof Wars Leaderboard</h1>
+                <p className="text-sm text-gray-600 mb-4">
+                  See who's cooking the best Jollof in the competition!
+                </p>
+              </div>
+              <Link href="/leaderboard" passHref>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="px-8"
+                >
+                  View Leaderboard
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost"
+                size="sm" 
+                onClick={() => setActiveTab("home")} 
+                className="mt-4"
+              >
+                Back to Home
+              </Button>
+            </div>
+          )}
+          {activeTab === "game" && (
+            <div className="flex flex-col items-center justify-center mt-8">
+              <div className="text-center mb-6">
+                <h1 className="text-2xl font-bold mb-2">Jollof Wars</h1>
+                <p className="text-sm text-gray-600 mb-4">
+                  The ultimate Ghana vs Nigeria Jollof cooking competition!
+                </p>
+              </div>
+              <Link href="/game" passHref>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="px-8"
+                >
+                  Play Now
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost"
+                size="sm" 
+                onClick={() => setActiveTab("home")} 
+                className="mt-4"
+              >
+                Back to Home
+              </Button>
+            </div>
+          )}
         </main>
 
+        <nav className="mt-4 border-t border-gray-200 pt-4">
+          <div className="flex justify-around">
+            <Button
+              variant={activeTab === "home" ? "primary" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("home")}
+              className="flex flex-col items-center"
+              icon={<span className="text-lg">🏠</span>}
+            >
+              Home
+            </Button>
+            <Button
+              variant={activeTab === "game" ? "primary" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("game")}
+              className="flex flex-col items-center"
+              icon={<span className="text-lg">🍚</span>}
+            >
+              Game
+            </Button>
+            <Button
+              variant={activeTab === "leaderboard" ? "primary" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("leaderboard")}
+              className="flex flex-col items-center"
+              icon={<span className="text-lg">🏆</span>}
+            >
+              Ranks
+            </Button>
+            <Button
+              variant={activeTab === "features" ? "primary" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("features")}
+              className="flex flex-col items-center"
+              icon={<span className="text-lg">✨</span>}
+            >
+              Features
+            </Button>
+          </div>
+        </nav>
+        
         <footer className="mt-2 pt-4 flex justify-center">
           <Button
             variant="ghost"

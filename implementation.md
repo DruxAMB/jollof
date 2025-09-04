@@ -13,8 +13,8 @@
 - **Authentication:** Farcaster for user identity
 - **Database:**
   - User profiles and scores: Base Mini App SDK
-  - Leaderboard data: Firebase Realtime Database
-  - Team statistics: Firebase Firestore
+  - Leaderboard data: Redis Realtime Database
+  - Team statistics: Redis 
 - **NFT Minting:** Base NFT API for badges and rewards
 - **Analytics:** Simple analytics to track engagement metrics
 
@@ -174,7 +174,7 @@ interface LocalStorage {
 ```
 
 ### Helpful Resources
-- [MiniKit Documentation](https://docs.base.org/mini-apps/quickstart/new-apps/install)
+- [MiniKit Documentation](https://docs.base.org/mini-apps/overview)
 - [Farcaster SDK Docs](https://miniapps.farcaster.xyz/docs/getting-started)
 - [Base NFT API Documentation](https://docs.base.org)
 - [Framer Motion Examples](https://www.framer.com/motion/)
