@@ -36,12 +36,7 @@ export function Game({ onPhaseChange }: GameProps = {}) {
       case "tutorial":
         return <Tutorial />;
       case "countdown":
-        return (
-          <>
-            <GamePlay />
-            <Countdown />
-          </>
-        );
+        return <Countdown />;
       case "playing":
         return <GamePlay />;
       case "scoring":

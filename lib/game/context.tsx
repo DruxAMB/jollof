@@ -56,21 +56,22 @@ export function GameProvider({ children }: GameProviderProps) {
         // Load state from Redis (this is async)
         const loadedState = await loadGameState(initialGameState, userId);
         
-        // Only dispatch if the state is different than initial
-        if (JSON.stringify(loadedState) !== JSON.stringify(state)) {
+        // Only dispatch if initial load hasn't happened yet
+        if (!isLoaded) {
           // Set state by dispatching LOAD_STATE action
           dispatch({ type: 'LOAD_STATE', payload: loadedState });
+          setIsLoaded(true);
         }
-        
-        setIsLoaded(true);
       } catch (error) {
         console.error('Failed to load game state:', error);
         setIsLoaded(true); // Still mark as loaded so UI doesn't hang
       }
     }
     
-    loadState();
-  }, [state, userId]); // Only re-run if user ID changes
+    if (!isLoaded) {
+      loadState();
+    }
+  }, [isLoaded, userId]); // Only run once on mount and if userId changes
 
   // Save state changes to Redis
   useEffect(() => {
