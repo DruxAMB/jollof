@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { fetchLeaderboard } from "@/lib/leaderboard";
+import { useMiniKit } from '@coinbase/onchainkit/minikit';
 
 type Team = "nigeria" | "ghana";
 type LeaderboardEntry = {
@@ -12,11 +14,16 @@ type LeaderboardEntry = {
   playerName: string;
   score: number;
   timestamp: number;
+  fid?: string; // Farcaster user ID
+  isVerifiedUser?: boolean; // Whether the user was authenticated via Farcaster
 };
 
 export function LeaderboardModal() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | "all">("all");
+  
+  // Get Farcaster context
+  const { context } = useMiniKit();
   
   useEffect(() => {
     async function loadLeaderboard() {
@@ -91,13 +98,41 @@ export function LeaderboardModal() {
                     </tr>
                   </thead>
                   <tbody>
-                    {nigeriaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid #eee"}}>
-                        <td className="px-2 py-1">{index + 1}</td>
-                        <td className="px-2 py-1">{entry.playerName}</td>
-                        <td className="px-2 py-1 text-right">{entry.score}</td>
-                      </tr>
-                    ))}
+                    {nigeriaScores.map((entry, index) => {
+                      const isCurrentUser = context?.user?.fid && entry.fid === String(context.user.fid);
+                      return (
+                        <tr key={entry.id} className={`${index % 2 === 0 ? "bg-cream-100" : ""} ${isCurrentUser ? "bg-yellow-50" : ""}`} style={{borderBottom: "1px solid #eee"}}>
+                          <td className="px-2 py-1">{index + 1}</td>
+                          <td className="px-2 py-1">
+                            <div className="flex items-center gap-2">
+                              {isCurrentUser && context?.user?.pfpUrl ? (
+                                <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+                                  <Image
+                                    src={context.user.pfpUrl}
+                                    alt={context.user.displayName || entry.playerName}
+                                    width={20}
+                                    height={20}
+                                    className="object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                entry.isVerifiedUser && <span className="text-xs bg-yellow-300 rounded-full w-5 h-5 flex items-center justify-center">✓</span>
+                              )}
+                              <span className={isCurrentUser ? "font-semibold" : ""}>
+                                {isCurrentUser && context?.user?.displayName ? 
+                                  context.user.displayName : entry.playerName}
+                                {isCurrentUser && " (You)"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-1 text-right font-medium">{entry.score}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -120,13 +155,41 @@ export function LeaderboardModal() {
                     </tr>
                   </thead>
                   <tbody>
-                    {ghanaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid #eee"}}>
-                        <td className="px-2 py-1">{index + 1}</td>
-                        <td className="px-2 py-1">{entry.playerName}</td>
-                        <td className="px-2 py-1 text-right">{entry.score}</td>
-                      </tr>
-                    ))}
+                    {ghanaScores.map((entry, index) => {
+                      const isCurrentUser = context?.user?.fid && entry.fid === String(context.user.fid);
+                      return (
+                        <tr key={entry.id} className={`${index % 2 === 0 ? "bg-cream-100" : ""} ${isCurrentUser ? "bg-green-50" : ""}`} style={{borderBottom: "1px solid #eee"}}>
+                          <td className="px-2 py-1">{index + 1}</td>
+                          <td className="px-2 py-1">
+                            <div className="flex items-center gap-2">
+                              {isCurrentUser && context?.user?.pfpUrl ? (
+                                <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+                                  <Image
+                                    src={context.user.pfpUrl}
+                                    alt={context.user.displayName || entry.playerName}
+                                    width={20}
+                                    height={20}
+                                    className="object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                    }}
+                                  />
+                                </div>
+                              ) : (
+                                entry.isVerifiedUser && <span className="text-xs bg-green-300 rounded-full w-5 h-5 flex items-center justify-center">✓</span>
+                              )}
+                              <span className={isCurrentUser ? "font-semibold" : ""}>
+                                {isCurrentUser && context?.user?.displayName ? 
+                                  context.user.displayName : entry.playerName}
+                                {isCurrentUser && " (You)"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-2 py-1 text-right font-medium">{entry.score}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
