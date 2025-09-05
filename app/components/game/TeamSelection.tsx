@@ -13,7 +13,7 @@ export function TeamSelection() {
   };
   
   return (
-    <div className="flex flex-col items-center justify-start px-4 py-8 w-full">
+    <div className="flex flex-col items-center justify-start mb-16 px-4 py-8 w-full">
       <div className="text-center my-8">
         <h1 className="text-2xl font-extrabold text-black mb-3 uppercase">Which country cooks the best Jollof rice?</h1>
         <p className="text-amber-700">Select your team and prove it!</p>
