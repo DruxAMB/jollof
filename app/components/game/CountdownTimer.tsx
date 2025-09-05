@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { JSX } from "react";
 
 interface CountdownTimerProps {
   seconds: number;
@@ -14,7 +15,7 @@ export function CountdownTimer({
   onComplete,
   className = "",
   size = "md",
-}: CountdownTimerProps) {
+}: CountdownTimerProps): JSX.Element {
   // Handle completion
   useEffect(() => {
     if (seconds === 0 && onComplete) {

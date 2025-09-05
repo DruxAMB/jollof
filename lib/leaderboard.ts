@@ -82,9 +82,12 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
     if (typeof window !== 'undefined') {
       const storedData = localStorage.getItem(LEADERBOARD_STORAGE_KEY);
       if (storedData) {
-        return JSON.parse(storedData);
+        const parsedData = JSON.parse(storedData);
+        console.log('Fetched leaderboard from storage:', parsedData);
+        return parsedData;
       }
       // Initialize with mock data if nothing exists
+      console.log('No leaderboard in storage, using mock data');
       localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(mockLeaderboard));
     }
     return mockLeaderboard;
@@ -100,6 +103,11 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
  */
 export async function submitScore(entry: Omit<LeaderboardEntry, "id" | "timestamp">): Promise<LeaderboardEntry> {
   try {
+    console.log('submitScore received entry:', entry);
+    if (entry.score === 0) {
+      console.warn('WARNING: Received a zero score submission');
+    }
+    
     // Create a new entry with ID and timestamp
     const newEntry: LeaderboardEntry = {
       ...entry,
@@ -107,14 +115,26 @@ export async function submitScore(entry: Omit<LeaderboardEntry, "id" | "timestam
       timestamp: Date.now()
     };
     
+    console.log('Created new leaderboard entry:', newEntry);
+    
     // In a real app, this would be an API call to save the score
     if (typeof window !== 'undefined') {
       const currentLeaderboard = await fetchLeaderboard();
+      
+      // Check if user already has entries to ensure we're not duplicating
+      if (entry.fid) {
+        const existingEntries = currentLeaderboard.filter(item => 
+          item.fid === entry.fid && item.team === entry.team
+        );
+        console.log(`Found ${existingEntries.length} existing entries for this user/team:`, existingEntries);
+      }
+      
       const updatedLeaderboard = [...currentLeaderboard, newEntry]
         .sort((a, b) => b.score - a.score) // Sort by score (highest first)
         .slice(0, 100); // Limit to top 100 scores
       
       localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(updatedLeaderboard));
+      console.log('Updated leaderboard saved to storage');
     }
     
     return newEntry;

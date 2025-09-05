@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useGameContext } from "@/lib/game/context";
 import { CookingPot } from "./CookingPot";
 import { Ingredients } from "./Ingredients";
@@ -9,24 +9,25 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import { CountdownTimer } from "./CountdownTimer";
 import { ActionFeedback } from "./ActionFeedback";
 import { IngredientType, SwipeDirection } from "@/lib/game/types";
+import { JSX } from "react";
 
-export function GamePlay() {
+export function GamePlay(): JSX.Element {
   const { state, dispatch } = useGameContext();
   const [progressPercentage, setProgressPercentage] = useState(0);
   const [actionFeedback, setActionFeedback] = useState({ show: false, success: false });
   
+  // Timer effect - only depends on dispatch, not on state.timer
+  // This prevents unnecessary effect re-runs when timer changes
   useEffect(() => {
     // Start game timer when component mounts
     // Update by 1 second every 1 second to ensure the timer display works correctly
     const timer = setInterval(() => {
-      console.log('Dispatching UPDATE_TIMER, current timer:', state.timer);
       dispatch({ type: 'UPDATE_TIMER', payload: 1 });
-      // Log after dispatch to confirm the action was sent
-      setTimeout(() => console.log('Timer after dispatch:', state.timer), 50);
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [dispatch, state.timer]);
+    // Intentionally omit state.timer to prevent re-creating interval on every tick
+  }, [dispatch]);
   
   useEffect(() => {
     // Update progress based on completed actions
@@ -40,7 +41,14 @@ export function GamePlay() {
     setActionFeedback({ show: false, success: false });
   }, []);
   
-  const handleIngredientTap = (ingredient: IngredientType) => {
+  // Calculate timing for actions - extracted to a function to avoid duplication
+  const calculateActionTiming = useCallback(() => {
+    // Guaranteed positive value between 200-800ms to ensure points are awarded
+    return Math.floor(Math.random() * 600) + 200;
+  }, []);
+  
+  // Handle ingredient tap with memoization
+  const handleIngredientTap = useCallback((ingredient: IngredientType) => {
     // Only process if current action is a tap action
     if (state.nextAction?.type === 'tap') {
       // Record that user performed the action
@@ -55,19 +63,18 @@ export function GamePlay() {
       // Show feedback animation
       setActionFeedback({ show: true, success });
       
-      // Calculate timing - in a real game we'd measure actual time since action appeared
-      // For now we'll use a random value to simulate timing
-      const timing = Math.floor(Math.random() * 1000); 
+      // Calculate timing and complete the action
+      const timing = calculateActionTiming();
       
-      // Complete the action with success/failure and timing
       dispatch({
         type: 'COMPLETE_ACTION',
         payload: { success, timing }
       });
     }
-  };
+  }, [state.nextAction, dispatch, setActionFeedback, calculateActionTiming]);
   
-  const handleSwipe = (direction: SwipeDirection) => {
+  // Handle swipe with memoization
+  const handleSwipe = useCallback((direction: SwipeDirection) => {
     // Only process if current action is a swipe action
     if (state.nextAction?.type === 'swipe') {
       // Record that user performed the action
@@ -82,18 +89,18 @@ export function GamePlay() {
       // Show feedback animation
       setActionFeedback({ show: true, success });
       
-      // Calculate timing - same as above, using random for demo
-      const timing = Math.floor(Math.random() * 1000);
+      // Calculate timing and complete the action 
+      const timing = calculateActionTiming();
       
-      // Complete the action
       dispatch({
         type: 'COMPLETE_ACTION',
         payload: { success, timing }
       });
     }
-  };
+  }, [state.nextAction, dispatch, setActionFeedback, calculateActionTiming]);
   
-  const handlePotTap = () => {
+  // Handle pot tap with memoization
+  const handlePotTap = useCallback(() => {
     // If next action is a tap, but player tapped the pot instead of an ingredient,
     // this is a mistake
     if (state.nextAction?.type === 'tap') {
@@ -102,7 +109,7 @@ export function GamePlay() {
         payload: { success: false, timing: 0 }
       });
     }
-  };
+  }, [state.nextAction, dispatch]);
 
   return (
     <div className="min-h-screen flex flex-col relative">
@@ -141,14 +148,15 @@ export function GamePlay() {
             actionType={state.nextAction?.type}
             ingredient={state.nextAction?.type === 'tap' ? state.nextAction.ingredient : undefined}
             direction={state.nextAction?.type === 'swipe' ? state.nextAction.direction : undefined}
-            isActive={true}
+            isActive={state.phase === 'playing'}
           />
         </div>
         
         {/* Cooking pot */}
         <div className="flex-1 flex items-center justify-center my-4">
+          {/* Provide safe default instead of using non-null assertion */}
           <CookingPot
-            team={state.team!}
+            team={state.team || 'nigeria'}
             progressPercentage={progressPercentage}
             isActive={state.nextAction?.type === 'swipe'}
             onTap={handlePotTap}

@@ -5,28 +5,91 @@ import { Card } from "./Card";
 import { Button } from "./Button";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { submitScore, LeaderboardEntry } from "@/lib/leaderboard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
+import { JSX } from "react";
 
-export function Results() {
+export function Results(): JSX.Element {
   const { state, dispatch } = useGameContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  // We track the submitted entry but don't currently display it differently
   const [playerEntry, setPlayerEntry] = useState<LeaderboardEntry | null>(null);
-  const [showLeaderboardSuccess, setShowLeaderboardSuccess] = useState(false);
-  
+  const [playerName, setPlayerName] = useState<string>("");
+
   // Use Farcaster context 
   const { context, isFrameReady, setFrameReady } = useMiniKit();
-  
+
+  // Calculate metrics using useMemo to prevent recalculations
+  const perfectActions = state.playerStats.perfectActions;
+  const totalActions = state.completedActions;
+  const accuracy = useMemo(() => {
+    return totalActions > 0 
+      ? Math.round((totalActions - (state.score.accuracyPenalty / 50)) / totalActions * 100) 
+      : 0;
+  }, [totalActions, state.score.accuracyPenalty]);
+
+  // Is high score?
+  const isHighScore = state.score.totalScore >= state.playerStats.highScore;
+
   // Set frame as ready when component mounts
   useEffect(() => {
     if (!isFrameReady) {
       setFrameReady();
     }
   }, [setFrameReady, isFrameReady]);
-  
-  // Handle player name - from Farcaster if available, otherwise from localStorage
-  const [playerName, setPlayerName] = useState<string>("");
+
+  // Handle submitting score with proper memoization
+  const handleSubmitScore = useCallback(async (nameOverride?: string) => {
+    const nameToUse = nameOverride || playerName;
+    
+    // If we have no name (neither from Farcaster nor manual input), stop
+    if (!state.team || !nameToUse.trim()) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Only save manually entered names to localStorage
+      if (typeof window !== 'undefined' && !context?.user) {
+        localStorage.setItem('jollof_player_name', nameToUse);
+      }
+      
+      console.log('Submitting score:', {
+        name: nameToUse.trim(),
+        score: state.score.totalScore,
+        team: state.team,
+        fid: context?.user?.fid ? String(context.user.fid) : undefined
+      });
+      
+      // Submit the score using our leaderboard service
+      const newEntry = await submitScore({
+        playerName: nameToUse.trim(),
+        score: state.score.totalScore,
+        team: state.team,
+        combo: state.playerStats.longestCombo,
+        perfectActions: state.playerStats.perfectActions,
+        accuracy,
+        // Include Farcaster ID if available
+        fid: context?.user?.fid ? String(context.user.fid) : undefined,
+        isVerifiedUser: !!context?.user?.fid
+      });
+      
+      console.log('Score submitted, received entry:', newEntry);
+      
+      setPlayerEntry(newEntry);
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Failed to submit score:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [playerName, state.team, state.score.totalScore, state.playerStats.longestCombo, 
+      state.playerStats.perfectActions, accuracy, context]);
+
+  // Handle returning to the game
+  const handlePlayAgain = useCallback(() => {
+    dispatch({ type: 'RESET_GAME' });
+  }, [dispatch]);
   
   // Auto-submit score for Farcaster users
   useEffect(() => {
@@ -47,63 +110,7 @@ export function Results() {
       // Fallback to localStorage for non-Farcaster users
       setPlayerName(localStorage.getItem('jollof_player_name') || '');
     }
-  }, [context, state.phase, submitted, isSubmitting]);
-
-  const handlePlayAgain = () => {
-    dispatch({ type: 'RESET_GAME' });
-  };
-
-  const handleSubmitScore = async (nameOverride?: string) => {
-    const nameToUse = nameOverride || playerName;
-    
-    // If we have no name (neither from Farcaster nor manual input), stop
-    if (!state.team || !nameToUse.trim()) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Only save manually entered names to localStorage
-      if (typeof window !== 'undefined' && !context?.user) {
-        localStorage.setItem('jollof_player_name', nameToUse);
-      }
-      
-      // Calculate accuracy percentage
-      const accuracyPercentage = totalActions > 0 
-        ? ((totalActions - (state.score.accuracyPenalty / 50)) / totalActions * 100)
-        : 0;
-        
-      // Submit the score using our leaderboard service
-      const newEntry = await submitScore({
-        playerName: nameToUse.trim(),
-        score: state.score.totalScore,
-        team: state.team,
-        combo: state.playerStats.longestCombo,
-        perfectActions: state.playerStats.perfectActions,
-        accuracy: accuracyPercentage,
-        // Include Farcaster ID if available
-        fid: context?.user?.fid ? String(context.user.fid) : undefined,
-        isVerifiedUser: !!context?.user?.fid
-      });
-      
-      setPlayerEntry(newEntry);
-      setSubmitted(true);
-      setShowLeaderboardSuccess(true);
-    } catch (error) {
-      console.error("Failed to submit score:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Calculate metrics
-  const perfectActions = state.playerStats.perfectActions;
-  const totalActions = state.completedActions;
-  const accuracy = totalActions > 0 
-    ? Math.round((totalActions - (state.score.accuracyPenalty / 50)) / totalActions * 100) 
-    : 0;
-  
-  // Is high score?
-  const isHighScore = state.score.totalScore >= state.playerStats.highScore;
+  }, [context, state.phase, submitted, isSubmitting, handleSubmitScore]);
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 mb-28">
@@ -208,31 +215,29 @@ export function Results() {
           </div>
         ) : (
           <div className="space-y-4">
-            {!showLeaderboardSuccess && (
-              <div className="flex flex-col space-y-3">
-                <div className="bg-green-100 text-green-800 p-3 rounded-lg text-center">
-                  Score submitted! Check the leaderboard to see where you rank.
-                </div>
-                
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={() => window.location.href = "/#leaderboard"}
-                  className="w-full"
-                >
-                  View Leaderboard
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handlePlayAgain}
-                  className="w-full"
-                >
-                  Play Again
-                </Button>
+            <div className="flex flex-col space-y-3">
+              <div className="bg-green-100 text-green-800 p-3 rounded-lg text-center">
+                Score submitted! Check the leaderboard to see where you rank.
               </div>
-            )}
+              
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => window.location.href = "/#leaderboard"}
+                className="w-full"
+              >
+                View Leaderboard
+              </Button>
+              
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handlePlayAgain}
+                className="w-full"
+              >
+                Play Again
+              </Button>
+            </div>
           </div>
         )}
       </Card>
