@@ -1,5 +1,6 @@
 import { TeamType } from "./game/types";
 import { redis } from "./redis";
+import { cache, LEADERBOARD_CACHE_TTL, USER_CACHE_TTL } from "./cache";
 
 // Leaderboard entry type definition
 export interface LeaderboardEntry {
@@ -28,6 +29,12 @@ function isRedisAvailable(): boolean {
  * Fetch the current leaderboard data
  */
 export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
+  // Try to get from cache first
+  const cachedLeaderboard = cache.get<LeaderboardEntry[]>('leaderboard');
+  if (cachedLeaderboard) {
+    return cachedLeaderboard;
+  }
+  
   try {
     // Check if Redis is available
     if (!isRedisAvailable() || !redis) {
@@ -43,20 +50,49 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
 
     // Parse the entries
     const leaderboard: LeaderboardEntry[] = [];
+    const entryIds: string[] = [];
     
-    // Process the scores array which has [id, score, id, score, ...] format
+    // First, gather all valid IDs from the scores
     for (let i = 0; i < scores.length; i += 2) {
       // Ensure we have valid string values
       if (typeof scores[i] !== 'string') continue;
       if (typeof scores[i+1] !== 'string' && typeof scores[i+1] !== 'number') continue;
       
-      const id = scores[i] as string;
-      const score = parseFloat(String(scores[i + 1]));
+      entryIds.push(scores[i] as string);
+    }
+    
+    if (entryIds.length === 0) {
+      return []; // No valid entries
+    }
+    
+    // Use pipelining to fetch all entry data in bulk
+    const pipeline = redis.pipeline();
+    
+    // Queue up all the hgetall commands
+    entryIds.forEach(id => {
+      pipeline.hgetall(`${LEADERBOARD_KEY}:${id}`);
+    });
+    
+    // Execute the pipeline
+    const entryDataResults = await pipeline.exec();
+    
+    // Process the results and build the leaderboard
+    for (let i = 0; i < entryIds.length; i++) {
+      const id = entryIds[i];
+      const scoreIndex = scores.findIndex(s => s === id) + 1;
+      const score = scoreIndex >= 0 ? parseFloat(String(scores[scoreIndex])) : 0;
       
-      // Get the full entry data from Redis hash
-      const entryData = await redis.hgetall(`${LEADERBOARD_KEY}:${id}`);
+      // Get the entry data from pipeline results
+      // Pipeline results are [err, result] tuples
+      const pipelineResult = entryDataResults[i] as [Error | null, Record<string, unknown>];
       
-      if (entryData) {
+      // Skip if there's an error or no data
+      if (!pipelineResult || pipelineResult[0]) continue;
+      
+      // Extract the actual data (second element in the tuple)
+      const entryData = pipelineResult[1] as Record<string, unknown>;
+      
+      if (entryData && typeof entryData === 'object' && Object.keys(entryData).length > 0) {
         leaderboard.push({
           id,
           playerName: entryData.playerName as string,
@@ -73,6 +109,10 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
     }
     
     console.log('Fetched leaderboard from Redis:', leaderboard);
+    
+    // Cache the results before returning
+    cache.set('leaderboard', leaderboard, LEADERBOARD_CACHE_TTL);
+    
     return leaderboard;
   } catch (error) {
     console.error("Error fetching leaderboard from Redis:", error);
@@ -105,8 +145,11 @@ export async function submitScore(entry: Omit<LeaderboardEntry, "id" | "timestam
     
     console.log('Created new leaderboard entry:', newEntry);
     
-    // Store the full entry data as a Redis hash
-    await redis.hset(
+    // Use multi/exec for atomic operations across multiple keys
+    const multi = redis.multi();
+    
+    // 1. Store the full entry data as a Redis hash
+    multi.hset(
       `${LEADERBOARD_KEY}:${newEntry.id}`,
       {
         playerName: newEntry.playerName,
@@ -121,18 +164,41 @@ export async function submitScore(entry: Omit<LeaderboardEntry, "id" | "timestam
       }
     );
     
-    // Add score to the sorted set for leaderboard ranking
-    await redis.zadd(LEADERBOARD_KEY, {
+    // 2. Add score to the sorted set for leaderboard ranking
+    multi.zadd(LEADERBOARD_KEY, {
       score: newEntry.score,
       member: newEntry.id
     });
     
-    // If this user has an FID, associate this score with their user ID
+    // 3. If this user has an FID, associate this score with their user ID
     if (entry.fid) {
-      await redis.zadd(`${USER_SCORES_KEY}:${entry.fid}`, {
+      multi.zadd(`${USER_SCORES_KEY}:${entry.fid}`, {
         score: newEntry.score,
         member: newEntry.id
       });
+      
+      // 4. Set TTL for user data (90 days)
+      multi.expire(`${USER_SCORES_KEY}:${entry.fid}`, 60 * 60 * 24 * 90);
+    }
+    
+    // 5. Set TTL for the entry hash (90 days)
+    multi.expire(`${LEADERBOARD_KEY}:${newEntry.id}`, 60 * 60 * 24 * 90);
+    
+    // Execute all commands atomically
+    const multiResults = await multi.exec() as Array<[Error | null, unknown]>;
+    
+    // Check for any errors in the transaction
+    const hasErrors = multiResults.some(result => result[0] !== null);
+    if (hasErrors) {
+      throw new Error("Transaction failed: One or more Redis operations failed");
+    }
+    
+    // Invalidate leaderboard cache since we've added a new entry
+    cache.delete('leaderboard');
+    
+    // Invalidate user's cache if applicable
+    if (entry.fid) {
+      cache.delete(`user_best_score:${entry.fid}`);
     }
     
     console.log('Score submitted to Redis successfully');
@@ -189,17 +255,39 @@ export async function clearLeaderboard(): Promise<void> {
     // Get all leaderboard entry IDs
     const entryIds = await redis.zrange(LEADERBOARD_KEY, 0, -1);
     
+    // Use pipelining for bulk operations
+    const pipeline = redis.pipeline();
+    
     // Delete each entry's hash
     for (const id of entryIds) {
       // Ensure we have a string ID
       if (typeof id !== 'string') continue;
-      await redis.del(`${LEADERBOARD_KEY}:${id}`);
+      pipeline.del(`${LEADERBOARD_KEY}:${id}`);
     }
     
     // Delete the sorted set
-    await redis.del(LEADERBOARD_KEY);
+    pipeline.del(LEADERBOARD_KEY);
     
-    console.log('Leaderboard cleared from Redis');
+    // Execute all deletions in a single batch
+    const pipelineResults = await pipeline.exec();
+    
+    // Check for any errors in the pipeline
+    const hasErrors = pipelineResults?.some(result => {
+      const [err] = result as [Error | null, unknown];
+      return err !== null;
+    });
+    
+    if (hasErrors) {
+      console.error("Some operations failed during leaderboard clearing");
+    }
+    
+    // Clear all related caches
+    cache.delete('leaderboard');
+    
+    // Clear user score caches (we don't have an easy way to identify all users,
+    // so we rely on the cache TTL to eventually expire user-specific entries)
+    
+    console.log('Leaderboard cleared from Redis and cache invalidated');
   } catch (error) {
     console.error("Error clearing leaderboard from Redis:", error);
   }
@@ -210,8 +298,18 @@ export async function clearLeaderboard(): Promise<void> {
  * @param fid Farcaster ID of the user
  */
 export async function getUserBestScore(fid: string): Promise<LeaderboardEntry | null> {
+  // Early return if no fid
+  if (!fid) return null;
+  
+  // Try to get from cache first
+  const cacheKey = `user_best_score:${fid}`;
+  const cachedScore = cache.get<LeaderboardEntry>(cacheKey);
+  if (cachedScore) {
+    return cachedScore;
+  }
+  
   try {
-    if (!isRedisAvailable() || !fid || !redis) {
+    if (!isRedisAvailable() || !redis) {
       return null;
     }
     
@@ -239,7 +337,7 @@ export async function getUserBestScore(fid: string): Promise<LeaderboardEntry | 
       return null;
     }
     
-    return {
+    const entry = {
       id,
       playerName: entryData.playerName as string,
       score: parseInt(entryData.score as string),
@@ -251,6 +349,11 @@ export async function getUserBestScore(fid: string): Promise<LeaderboardEntry | 
       fid: typeof entryData.fid === 'string' ? entryData.fid : undefined,
       isVerifiedUser: entryData.isVerifiedUser === 'true'
     };
+    
+    // Cache the user's best score
+    cache.set(cacheKey, entry, USER_CACHE_TTL);
+    
+    return entry;
   } catch (error) {
     console.error("Error getting user's best score:", error);
     return null;

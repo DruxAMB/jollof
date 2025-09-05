@@ -34,9 +34,13 @@ export async function saveGameState(state: GameState, userId?: string): Promise<
     
     // If we have a userId (Farcaster FID), save to user-specific state
     if (userId) {
-      await redis.hset(`${USER_STATE_KEY}:${userId}`, dataToSave);
+      const userStateKey = `${USER_STATE_KEY}:${userId}`;
+      await redis.hset(userStateKey, dataToSave);
+      
+      // Set TTL for user-specific data (30 days)
+      await redis.expire(userStateKey, 60 * 60 * 24 * 30);
     } else {
-      // Otherwise, save to general game state
+      // Otherwise, save to general game state (no expiration for global data)
       await redis.hset(GAME_STATE_KEY, dataToSave);
     }
   } catch (error) {
