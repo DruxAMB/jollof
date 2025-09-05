@@ -64,20 +64,42 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { state, userId } = body;
+    // Check Content-Type header to ensure it's JSON
+    const contentType = request.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return NextResponse.json(
+        { error: 'Content-Type must be application/json' },
+        { status: 400 }
+      );
+    }
+    
+    // Try to parse the request body with better error handling
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      console.error('JSON parse error:', jsonError);
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate the parsed body
+    const { state, userId } = body || {};
+    
+    // Ensure state exists
+    if (!state) {
+      return NextResponse.json(
+        { error: 'Missing state in request body' },
+        { status: 400 }
+      );
+    }
     
     if (!redis) {
       return NextResponse.json(
         { error: 'Redis client not available' },
         { status: 503 }
-      );
-    }
-    
-    if (!state) {
-      return NextResponse.json(
-        { error: 'No state provided' },
-        { status: 400 }
       );
     }
     

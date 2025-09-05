@@ -24,11 +24,16 @@ const TEAM_STATS_API = "/api/leaderboard/team-stats";
  * Fetch the current leaderboard data
  */
 export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
+  console.log('[CLIENT] Fetching leaderboard data...');
+  
   // Try to get from cache first
   const cachedLeaderboard = cache.get<LeaderboardEntry[]>('leaderboard');
   if (cachedLeaderboard) {
+    console.log('[CLIENT] Returning cached leaderboard data:', cachedLeaderboard.length, 'entries');
     return cachedLeaderboard;
   }
+  
+  console.log('[CLIENT] No cached data, fetching from API:', LEADERBOARD_API);
   
   try {
     const response = await fetch(LEADERBOARD_API, {
@@ -37,14 +42,33 @@ export async function fetchLeaderboard(): Promise<LeaderboardEntry[]> {
         'Cache-Control': 'no-cache',
       },
       credentials: 'same-origin',
+      next: { revalidate: 0 }, // Force fetch fresh data
     });
 
+    console.log('[CLIENT] API response status:', response.status);
+    
     if (!response.ok) {
-      console.warn(`Failed to fetch leaderboard: ${response.status}`);
+      console.warn(`[CLIENT] Failed to fetch leaderboard: ${response.status}`);
       return [];
     }
 
-    const leaderboard = await response.json();
+    const responseText = await response.text();
+    console.log('[CLIENT] Raw response text:', responseText.substring(0, 100) + '...');
+    
+    let leaderboard: LeaderboardEntry[] = [];
+    try {
+      leaderboard = JSON.parse(responseText) as LeaderboardEntry[];
+    } catch (parseError) {
+      console.error('[CLIENT] JSON parse error:', parseError);
+      return [];
+    }
+    
+    console.log('[CLIENT] Parsed leaderboard data:', leaderboard.length, 'entries');
+    if (leaderboard.length > 0) {
+      console.log('[CLIENT] First entry:', leaderboard[0]);
+    } else {
+      console.log('[CLIENT] No entries in leaderboard data');
+    }
     
     // Cache the results before returning
     cache.set('leaderboard', leaderboard, LEADERBOARD_CACHE_TTL);

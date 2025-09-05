@@ -3,8 +3,9 @@ import { redis } from '@/lib/redis';
 import { TeamType } from '@/lib/game/types';
 import { cache, LEADERBOARD_CACHE_TTL, USER_CACHE_TTL } from '@/lib/cache';
 
-// Redis keys
-const LEADERBOARD_KEY = "jollof_wars:leaderboard";
+// Redis keys - match exact format in the Redis database
+const LEADERBOARD_KEY = "jollof_wars:leaderboard"; // Sorted set with score mapping
+const LEADERBOARD_HASH_PREFIX = "jollof_wars:leaderboard:"; // Hash entries with details
 const USER_SCORES_KEY = "jollof_wars:user_scores";
 
 // Leaderboard entry type definition
@@ -33,24 +34,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Debug: log the LEADERBOARD_KEY
+    console.log('Fetching from leaderboard key:', LEADERBOARD_KEY);
+    
     // Get scores from Redis using ZREVRANGE to get all entries sorted by score (highest first)
     const scores = await redis.zrange(LEADERBOARD_KEY, 0, -1, {
       rev: true, // Get scores in descending order
       withScores: true, // Include the scores
     });
-
+    
+    // Debug: log the scores from zrange
+    console.log('Scores from ZRANGE:', scores, 'Length:', scores.length);
+    
     // Parse the entries
     const leaderboard: LeaderboardEntry[] = [];
     const entryIds: string[] = [];
     
     // First, gather all valid IDs from the scores
+    console.log('Processing ZRANGE results to extract entry IDs');
     for (let i = 0; i < scores.length; i += 2) {
-      // Ensure we have valid string values
-      if (typeof scores[i] !== 'string') continue;
-      if (typeof scores[i+1] !== 'string' && typeof scores[i+1] !== 'number') continue;
+      // Redis can return values in different formats depending on client configuration
+      // So convert whatever we get to a string
+      const entryId = String(scores[i]);
       
-      entryIds.push(scores[i] as string);
+      console.log(`Found ID at index ${i}: ${entryId}, type: ${typeof scores[i]}`);
+      
+      if (!entryId) {
+        console.log(`Skipping empty ID at index ${i}`);
+        continue;
+      }
+      
+      // Score should be a number or convertible to a number
+      const scoreValue = scores[i+1];
+      if (isNaN(Number(scoreValue))) {
+        console.log(`Skipping invalid score at index ${i+1}: ${scoreValue} (not convertible to number)`);
+        continue;
+      }
+      
+      // Use the string-converted ID, not the original value
+      const score = Number(scoreValue);
+      console.log(`Found valid entry ID: ${entryId} with score: ${score}`);
+      entryIds.push(entryId);
     }
+    
+    console.log('Total valid entry IDs found:', entryIds.length);
     
     if (entryIds.length === 0) {
       return NextResponse.json([]);
@@ -60,12 +87,21 @@ export async function GET(request: NextRequest) {
     const pipeline = redis.pipeline();
     
     // Queue up all the hgetall commands
+    console.log('Redis hash prefix being used:', LEADERBOARD_HASH_PREFIX);
     entryIds.forEach(id => {
-      pipeline.hgetall(`${LEADERBOARD_KEY}:${id}`);
+      const fullKey = `${LEADERBOARD_HASH_PREFIX}${id}`;
+      console.log(`Adding hgetall command for: ${fullKey}`);
+      pipeline.hgetall(fullKey);
     });
     
     // Execute the pipeline
     const entryDataResults = await pipeline.exec();
+    
+    // Debug: log pipeline results
+    console.log('Pipeline results count:', entryDataResults?.length);
+    if (entryDataResults?.[0]) {
+      console.log('First pipeline result:', entryDataResults[0]);
+    }
     
     // Process the results and build the leaderboard
     for (let i = 0; i < entryIds.length; i++) {
@@ -75,16 +111,51 @@ export async function GET(request: NextRequest) {
       
       // Get the entry data from pipeline results
       // Pipeline results are [err, result] tuples
-      const pipelineResult = entryDataResults[i] as [Error | null, Record<string, unknown>];
+      console.log(`Processing pipeline result for entry ${id} (index ${i})`);
       
-      // Skip if there's an error or no data
-      if (!pipelineResult || pipelineResult[0]) continue;
+      // IORedis pipeline.exec() returns an array of [Error | null, Result] tuples
+      // Check if the result is available and handle various formats that it might come in
+      if (!entryDataResults || !entryDataResults[i]) {
+        console.log(`No pipeline result at index ${i} for ID ${id}`);
+        continue;
+      }
       
-      // Extract the actual data (second element in the tuple)
-      const entryData = pipelineResult[1] as Record<string, unknown>;
+      let entryData: Record<string, unknown>;
+      const pipelineResult = entryDataResults[i];
       
-      if (entryData && typeof entryData === 'object' && Object.keys(entryData).length > 0) {
-        leaderboard.push({
+      console.log(`Pipeline result type for ${id}:`, typeof pipelineResult, 'isArray:', Array.isArray(pipelineResult));
+      
+      // Handle array format [err, result]
+      if (Array.isArray(pipelineResult) && pipelineResult.length >= 2) {
+        if (pipelineResult[0]) {
+          console.log(`Error in pipeline result at index ${i} for ID ${id}:`, pipelineResult[0]);
+          continue;
+        }
+        entryData = pipelineResult[1] as Record<string, unknown>;
+      } 
+      // Handle direct result object (depends on Redis client behavior)
+      else if (typeof pipelineResult === 'object' && pipelineResult !== null) {
+        entryData = pipelineResult as Record<string, unknown>;
+      }
+      // If neither format matches, skip this entry
+      else {
+        console.log(`Unrecognized pipeline result format at index ${i} for ID ${id}:`, pipelineResult);
+        continue;
+      }
+      console.log(`Entry data for ${id}:`, entryData);
+      
+      if (!entryData || typeof entryData !== 'object') {
+        console.log(`Invalid entry data for ${id}: not an object`);
+        continue;
+      }
+      
+      if (Object.keys(entryData).length === 0) {
+        console.log(`Empty entry data object for ${id}`);
+        continue;
+      }
+      
+      console.log(`Valid entry data found for ${id} with ${Object.keys(entryData).length} properties`);
+      leaderboard.push({
           id,
           playerName: entryData.playerName as string,
           score: parseInt(entryData.score as string),
@@ -96,8 +167,10 @@ export async function GET(request: NextRequest) {
           fid: typeof entryData.fid === 'string' ? entryData.fid : undefined,
           isVerifiedUser: entryData.isVerifiedUser === 'true'
         });
-      }
     }
+    
+    // Debug: log the final leaderboard array
+    console.log('Final leaderboard entries:', leaderboard.length);
     
     return NextResponse.json(leaderboard);
   } catch (error) {
@@ -158,8 +231,8 @@ export async function POST(request: NextRequest) {
       member: id
     });
     
-    // Store the full entry data as a hash
-    pipeline.hset(`${LEADERBOARD_KEY}:${id}`, entry);
+    // Store the full entry data as a hash using the correct prefix format
+    pipeline.hset(`${LEADERBOARD_HASH_PREFIX}${id}`, entry);
     
     // If we have a Farcaster ID, add to user-specific scores
     if (body.fid) {
@@ -169,8 +242,13 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Execute all commands
-    await pipeline.exec();
+    // Execute all commands with error checking
+    const execResults = await pipeline.exec();
+    console.log('Score submission pipeline results:', execResults?.length);
+    
+    // Log some key details for debugging
+    console.log('Added entry with ID:', id, 'team:', body.team, 'score:', body.score);
+    console.log('Using key format:', LEADERBOARD_HASH_PREFIX + id);
     
     // Invalidate leaderboard cache
     cache.delete('leaderboard');

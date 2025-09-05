@@ -9,25 +9,74 @@ const GAME_STATE_API = '/api/game-state';
  * @param userId Optional user ID (Farcaster FID) for user-specific state
  */
 export async function saveGameState(state: GameState, userId?: string): Promise<void> {
+  if (!state) {
+    console.error('Cannot save empty game state');
+    return;
+  }
+
+  // Ensure the state is a valid object that can be serialized
   try {
-    const response = await fetch(GAME_STATE_API, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ state, userId }),
-    });
+    // Check if the state can be properly serialized
+    const serialized = JSON.stringify({ state, userId });
+    if (!serialized || serialized === '{}' || serialized === 'null') {
+      console.error('Invalid game state for saving:', state);
+      return;
+    }
     
-    if (!response.ok) {
+    // Try to save with retry logic (max 2 attempts)
+    let attempts = 0;
+    const maxAttempts = 2;
+    
+    while (attempts < maxAttempts) {
+      attempts++;
+      
       try {
-        const errorData = await response.json();
-        console.error('Failed to save game state:', errorData.error || response.status);
-      } catch (parseError) {
-        console.error('Failed to save game state:', response.status, response.statusText);
+        const response = await fetch(GAME_STATE_API, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: serialized,
+          // Ensure credentials are sent
+          credentials: 'same-origin',
+          // Prevent caching of POST requests
+          cache: 'no-store',
+        });
+        
+        if (response.ok) {
+          // Successful save, exit retry loop
+          return;
+        }
+        
+        // Handle error response
+        try {
+          const errorData = await response.json();
+          console.error(`Failed to save game state (attempt ${attempts}/${maxAttempts}):`, 
+            errorData.error || response.status);
+        } catch (parseError) {
+          console.error(`Failed to save game state (attempt ${attempts}/${maxAttempts}):`, 
+            response.status, response.statusText);
+        }
+        
+        // Only retry if we haven't reached max attempts
+        if (attempts >= maxAttempts) break;
+        
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempts)));
+      } catch (fetchError) {
+        console.error(`Failed to save game state via API (attempt ${attempts}/${maxAttempts}):`, 
+          fetchError instanceof Error ? fetchError.message : String(fetchError));
+          
+        // Only retry if we haven't reached max attempts
+        if (attempts >= maxAttempts) break;
+        
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempts)));
       }
     }
-  } catch (error) {
-    console.error('Failed to save game state via API:', error instanceof Error ? error.message : String(error));
+  } catch (serializationError) {
+    console.error('Failed to serialize game state:', 
+      serializationError instanceof Error ? serializationError.message : String(serializationError));
   }
 }
 

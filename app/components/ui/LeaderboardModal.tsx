@@ -28,7 +28,7 @@ interface TeamTableProps {
 
 function TeamTable({ entries, teamColor, context }: TeamTableProps) {
   if (entries.length === 0) {
-    return <p className="text-center py-2">No scores</p>;
+    return <p className="text-center py-2 text-black">No scores</p>;
   }
   
   return (
