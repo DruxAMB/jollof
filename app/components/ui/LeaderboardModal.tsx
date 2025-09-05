@@ -7,6 +7,7 @@ import { Card } from "./Card";
 import { Button } from "./Button";
 import { fetchLeaderboard } from "@/lib/leaderboard";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
+import { useAccount } from 'wagmi';
 
 type Team = "nigeria" | "ghana";
 type LeaderboardEntry = {
@@ -25,9 +26,10 @@ interface TeamTableProps {
   teamColor: string;
   context: ReturnType<typeof useMiniKit>['context'];
   isLoading?: boolean;
+  userAddress?: string; // Current user wallet address
 }
 
-function TeamTable({ entries, teamColor, context, isLoading = false }: TeamTableProps) {
+function TeamTable({ entries, teamColor, context, userAddress, isLoading = false }: TeamTableProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center py-4">
@@ -59,8 +61,10 @@ function TeamTable({ entries, teamColor, context, isLoading = false }: TeamTable
         </thead>
         <tbody className="text-black">
           {entries.map((entry, index) => {
-            // Check if this entry has an FID and if it matches current user
-            const isCurrentUser = context?.user?.fid && entry.fid === String(context.user.fid);
+            // Check if this entry belongs to the current user (via Farcaster or wallet)
+            const isCurrentUserFarcaster = context?.user?.fid && entry.fid === String(context.user.fid);
+            const isCurrentUserWallet = userAddress && entry.playerName.toLowerCase().includes(userAddress.slice(-4).toLowerCase());
+            const isCurrentUser = isCurrentUserFarcaster || isCurrentUserWallet;
             
             // Create a name display with priority:
             // 1. Current user's display name from MiniKit context
@@ -144,8 +148,9 @@ export function LeaderboardModal(): JSX.Element {
   const [selectedTeam, setSelectedTeam] = useState<Team | "all">("all");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   
-  // Get Farcaster context
+  // Get Farcaster context and wallet address
   const { context } = useMiniKit();
+  const { address } = useAccount();
   
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useCallback(() => {
@@ -288,7 +293,8 @@ export function LeaderboardModal(): JSX.Element {
             <TeamTable 
               entries={sortedScores} 
               teamColor="gray" 
-              context={context} 
+              context={context}
+              userAddress={address} 
               isLoading={isLoading}
             />
           </Card>
@@ -301,7 +307,8 @@ export function LeaderboardModal(): JSX.Element {
               <TeamTable 
                 entries={nigeriaScores} 
                 teamColor="yellow" 
-                context={context} 
+                context={context}
+                userAddress={address} 
                 isLoading={isLoading}
               />
             </Card>
@@ -312,7 +319,8 @@ export function LeaderboardModal(): JSX.Element {
               <TeamTable 
                 entries={ghanaScores} 
                 teamColor="green" 
-                context={context} 
+                context={context}
+                userAddress={address} 
                 isLoading={isLoading}
               />
             </Card>

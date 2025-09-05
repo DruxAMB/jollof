@@ -21,7 +21,7 @@ import {
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Button } from "./components/ui/Button";
 import { Home } from "./components/ui/Home";
-import { Features } from "./components/ui/Features";
+import { Profile } from './components/ui/Profile';
 import { Modal } from "./components/ui/Modal";
 import { GameModal } from "./components/ui/GameModal";
 import { LeaderboardModal } from "./components/ui/LeaderboardModal";
@@ -189,7 +189,7 @@ export default function App() {
               }} 
               onOpenLeaderboard={() => setLeaderboardModalOpen(true)} 
             />}
-          {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
+          {activeTab === "profile" && <Profile setActiveTab={setActiveTab} />}
           {/* Removed redundant leaderboard and game tab content */}
         </main>
 
@@ -241,17 +241,17 @@ export default function App() {
               <span className={`text-xs font-extrabold ${leaderboardModalOpen ? "text-black" : "text-black/60"}`}>Ranks</span>
             </div>
             <div 
-              className={`flex flex-col items-center ${activeTab === "features" ? "scale-110" : ""}`}
+              className={`flex flex-col items-center ${activeTab === "profile" ? "scale-110" : ""}`}
               onClick={() => {
-                setActiveTab("features");
+                setActiveTab("profile");
                 setGameModalOpen(false);
                 setLeaderboardModalOpen(false);
               }}
             >
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "features" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
-                <span className="text-xl">✨</span>
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${activeTab === "profile" ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
+                <span className="text-xl">👤</span>
               </div>
-              <span className={`text-xs font-extrabold ${activeTab === "features" ? "text-black" : "text-black/60"}`}>Features</span>
+              <span className={`text-xs font-extrabold ${activeTab === "profile" ? "text-black" : "text-black/60"}`}>Profile</span>
             </div>
           </div>
         </nav>
