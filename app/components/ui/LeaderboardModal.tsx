@@ -230,12 +230,29 @@ export function LeaderboardModal(): JSX.Element {
   const ghanaScores = deduplicateScores(
     leaderboard.filter(entry => entry.team === "ghana")
   );
+  
+  // Calculate total scores by country to determine who has the best jollof
+  const nigeriaTotalScore = nigeriaScores.reduce((total, entry) => total + entry.score, 0);
+  const ghanaTotalScore = ghanaScores.reduce((total, entry) => total + entry.score, 0);
+  
+  const bestJollofCountry = nigeriaTotalScore > ghanaTotalScore ? "Nigeria" : "Ghana";
+  const bestJollofFlag = nigeriaTotalScore > ghanaTotalScore ? "🇳🇬" : "🇬🇭";
+  const bestJollofColor = nigeriaTotalScore > ghanaTotalScore ? "yellow" : "green";
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="my-8 text-center">
         <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Leaderboard</h1>
         <p className="text-black font-bold">See who's cooking the best Jollof in town!</p>
+        
+        {/* Display country with best jollof based on total score */}
+        {!isLoading && leaderboard.length > 0 && (
+          <div className="mt-4 py-2 px-4 rounded-lg inline-flex items-center bg-white text-black shadow-md">
+            <span className="text-lg mr-2">{bestJollofFlag}</span>
+            <span className={`font-bold text-${bestJollofColor}-600`}>{bestJollofCountry}</span> 
+            <span className="ml-1">makes the best jollof! ({nigeriaTotalScore > ghanaTotalScore ? nigeriaTotalScore : ghanaTotalScore} pts)</span>
+          </div>
+        )}
       </div>
       
       <div className="flex justify-center mb-6">
