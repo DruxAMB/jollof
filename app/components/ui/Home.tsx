@@ -12,7 +12,7 @@ type HomeProps = {
 
 export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps) {
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in mb-20">
       <Card className="bg-cream-50">
         <div className="flex flex-col items-center">
           <div className="relative w-full max-w-xs h-[125px] mb-4">
