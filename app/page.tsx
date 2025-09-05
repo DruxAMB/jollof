@@ -4,6 +4,7 @@ import {
   useMiniKit,
   useAddFrame,
 } from "@coinbase/onchainkit/minikit";
+import { useAccount } from 'wagmi';
 import {
   Name,
   Identity,
@@ -27,10 +28,12 @@ import { LeaderboardModal } from "./components/ui/LeaderboardModal";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
+  const { isConnected } = useAccount();
   const [frameAdded, setFrameAdded] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
   const [gameModalOpen, setGameModalOpen] = useState(true); // Open game modal by default
   const [leaderboardModalOpen, setLeaderboardModalOpen] = useState(false);
+  const [showConnectWalletPrompt, setShowConnectWalletPrompt] = useState(false);
   
   // Track the active game phase locally
   const [activeGamePhase, setActiveGamePhase] = useState<string>("team_selection");
@@ -106,10 +109,32 @@ export default function App() {
     <div className="flex flex-col min-h-screen font-sans text-amber-900 bg-gradient-to-br from-amber-50 to-orange-100">
       {/* Game Modal */}
       <Modal
-        isOpen={gameModalOpen}
+        isOpen={gameModalOpen && isConnected}
         onClose={() => setGameModalOpen(false)}
       >
         <GameModal onPhaseChange={updateGamePhase} />
+      </Modal>
+
+      {/* Connect Wallet Prompt Modal */}
+      <Modal
+        isOpen={showConnectWalletPrompt}
+        onClose={() => setShowConnectWalletPrompt(false)}
+      >
+        <div className="p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-amber-800 mb-4">Connect Your Wallet</h2>
+          <p className="text-gray-600 mb-6">Connect your wallet to start cooking the best jollof!</p>
+          
+          <div className="flex justify-center">
+            <ConnectWallet
+              className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-200"
+              disconnectedLabel="Connect Wallet"
+              onConnect={() => {
+                setShowConnectWalletPrompt(false);
+                setGameModalOpen(true);
+              }}
+            />
+          </div>
+        </div>
       </Modal>
       
       {/* Leaderboard Modal */}
@@ -153,7 +178,15 @@ export default function App() {
           {activeTab === "home" && 
             <Home 
               setActiveTab={setActiveTab} 
-              onOpenGame={() => setGameModalOpen(true)} 
+              onOpenGame={() => {
+                if (isConnected) {
+                  setGameModalOpen(true);
+                  setShowConnectWalletPrompt(false);
+                } else {
+                  // Show connect wallet prompt if wallet is not connected
+                  setShowConnectWalletPrompt(true);
+                }
+              }} 
               onOpenLeaderboard={() => setLeaderboardModalOpen(true)} 
             />}
           {activeTab === "features" && <Features setActiveTab={setActiveTab} />}
@@ -180,8 +213,14 @@ export default function App() {
             <div 
               className={`flex flex-col items-center ${gameModalOpen ? "scale-110" : ""}`}
               onClick={() => {
-                setGameModalOpen(true);
-                setLeaderboardModalOpen(false);
+                if (isConnected) {
+                  setGameModalOpen(true);
+                  setLeaderboardModalOpen(false);
+                  setShowConnectWalletPrompt(false);
+                } else {
+                  // Show connect wallet prompt if wallet is not connected
+                  setShowConnectWalletPrompt(true);
+                }
               }}
             >
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-1 border-2 cursor-pointer ${gameModalOpen ? "border-black bg-white" : "border-black/30 bg-cream-100"}`}>
