@@ -4,7 +4,6 @@ import { useGameContext } from "@/lib/game/context";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { Leaderboard } from "./Leaderboard";
 import { submitScore, LeaderboardEntry } from "@/lib/leaderboard";
 import { useState, useEffect } from "react";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
@@ -14,7 +13,7 @@ export function Results() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [playerEntry, setPlayerEntry] = useState<LeaderboardEntry | null>(null);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showLeaderboardSuccess, setShowLeaderboardSuccess] = useState(false);
   
   // Use Farcaster context 
   const { context, isFrameReady, setFrameReady } = useMiniKit();
@@ -88,7 +87,7 @@ export function Results() {
       
       setPlayerEntry(newEntry);
       setSubmitted(true);
-      setShowLeaderboard(true);
+      setShowLeaderboardSuccess(true);
     } catch (error) {
       console.error("Failed to submit score:", error);
     } finally {
@@ -107,7 +106,7 @@ export function Results() {
   const isHighScore = state.score.totalScore >= state.playerStats.highScore;
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
+    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 mb-28">
       <Card className="w-full max-w-lg">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
@@ -162,7 +161,7 @@ export function Results() {
                   {context.client?.added && (
                     <div className="text-xs text-green-600 mt-1">✅ App saved</div>
                   )}
-                  <div className="text-xs mt-2">Auto-submitting score...</div>
+                  <div className="text-xs mt-2 text-black">Auto-submitting score...</div>
                 </div>
               </div>
             ) : (
@@ -209,22 +208,7 @@ export function Results() {
           </div>
         ) : (
           <div className="space-y-4">
-            {showLeaderboard ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowLeaderboard(false)}
-                  className="mb-4"
-                >
-                  ← Back to Results
-                </Button>
-                <Leaderboard 
-                  playerScore={playerEntry!} 
-                  onClose={() => setShowLeaderboard(false)} 
-                />
-              </>
-            ) : (
+            {!showLeaderboardSuccess && (
               <div className="flex flex-col space-y-3">
                 <div className="bg-green-100 text-green-800 p-3 rounded-lg text-center">
                   Score submitted! Check the leaderboard to see where you rank.
@@ -233,7 +217,7 @@ export function Results() {
                 <Button
                   variant="primary"
                   size="lg"
-                  onClick={() => setShowLeaderboard(true)}
+                  onClick={() => window.location.href = "/#leaderboard"}
                   className="w-full"
                 >
                   View Leaderboard

@@ -53,7 +53,7 @@ export function Game({ onPhaseChange }: GameProps = {}) {
   };
 
   return (
-    <div className="w-full bg-cream-50 pb-16">
+    <div className="w-full bg-cream-50">
       <div className="container mx-auto">
         <div className="bg-cream-50">
           {renderGamePhase()}

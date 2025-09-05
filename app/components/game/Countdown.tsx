@@ -27,7 +27,7 @@ export function Countdown() {
   }, [count, dispatch]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-80">
+    <div className="fixed inset-0 flex items-center justify-center z-30 bg-black bg-opacity-80">
       <div className="text-center">
         {count > 0 ? (
           <div className="animate-bounce transform transition-all duration-300">

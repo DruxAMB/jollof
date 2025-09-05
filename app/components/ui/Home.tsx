@@ -13,11 +13,11 @@ type HomeProps = {
 export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps) {
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card className="bg-cream-50 border-2 border-black rounded-xl shadow-lg">
-        <div className="flex flex-col items-center mb-4">
+      <Card className="bg-cream-50">
+        <div className="flex flex-col items-center">
           <div className="relative w-full max-w-xs h-48 mb-4">
             <Image 
-              src="/hero.png" 
+              src="/nigeria-vs-ghana.png" 
               alt="Jollof Wars" 
               className="rounded-lg shadow-md object-cover"
               fill
@@ -26,7 +26,7 @@ export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps)
           </div>
         </div>
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-extrabold text-black mb-2">Welcome to Jollof Wars</h1>
+          <h1 className="text-3xl font-extrabold text-black mb-2">Welcome to <br/> <span className="text-amber-600 text-4xl">Jollof Wars</span></h1>
           <p className="text-black mb-4">
             The ultimate Ghana vs Nigeria Jollof cooking competition! Show off your
             cooking skills and compete for the title of Jollof Champion.

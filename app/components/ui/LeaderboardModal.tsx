@@ -47,7 +47,7 @@ export function LeaderboardModal() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="my-8 text-center">
-        <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Jollof Wars Leaderboard</h1>
+        <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Leaderboard</h1>
         <p className="text-black font-bold">See who's cooking the best Jollof in town!</p>
       </div>
       
@@ -56,82 +56,82 @@ export function LeaderboardModal() {
           <Button 
             variant={selectedTeam === "all" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("all")}
-            className="rounded-r-none uppercase"
+            className="rounded-r-none"
           >
-            All Teams
+            All
           </Button>
           <Button 
             variant={selectedTeam === "nigeria" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("nigeria")}
-            className="rounded-none border-l-0 border-r-0 uppercase"
+            className="rounded-none border-l-0 border-r-0"
           >
-            Team Nigeria
+            Nigeria
           </Button>
           <Button 
             variant={selectedTeam === "ghana" ? "primary" : "outline"}
             onClick={() => setSelectedTeam("ghana")}
-            className="rounded-l-none uppercase text-black"
+            className="rounded-l-none text-black"
           >
-            Team Ghana
+            Ghana
           </Button>
         </div>
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
         {selectedTeam !== "ghana" && (
-          <Card title="Team Nigeria 🇳🇬" className="mb-6">
+          <Card title="🇳🇬" className="mb-6">
             {nigeriaScores.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full border-2 border-black">
+                <table className="min-w-full border border-black">
                   <thead>
-                    <tr className="bg-yellow-300 border-b-2 border-black">
-                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Rank</th>
-                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Name</th>
-                      <th className="px-4 py-2 text-right text-black font-extrabold uppercase">Score</th>
+                    <tr className="bg-yellow-300 border-b border-black">
+                      <th className="px-2 py-1 text-left text-black font-bold">#</th>
+                      <th className="px-2 py-1 text-left text-black font-bold">Player</th>
+                      <th className="px-2 py-1 text-right text-black font-bold">Pts</th>
                     </tr>
                   </thead>
                   <tbody>
                     {nigeriaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid black"}}>
-                        <td className="px-4 py-2 font-bold">{index + 1}</td>
-                        <td className="px-4 py-2 font-medium">{entry.playerName}</td>
-                        <td className="px-4 py-2 text-right font-extrabold">{entry.score}</td>
+                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid #eee"}}>
+                        <td className="px-2 py-1">{index + 1}</td>
+                        <td className="px-2 py-1">{entry.playerName}</td>
+                        <td className="px-2 py-1 text-right">{entry.score}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-center py-4 text-black font-bold">No scores yet for Team Nigeria!</p>
+              <p className="text-center py-2">No scores</p>
             )}
           </Card>
         )}
         
         {selectedTeam !== "nigeria" && (
-          <Card title="Team Ghana 🇬🇭" className="mb-6">
+          <Card title="🇬🇭" className="mb-6">
             {ghanaScores.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="min-w-full border-2 border-black">
+                <table className="min-w-full border border-black">
                   <thead>
-                    <tr className="bg-green-300 border-b-2 border-black">
-                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Rank</th>
-                      <th className="px-4 py-2 text-left text-black font-extrabold uppercase">Name</th>
-                      <th className="px-4 py-2 text-right text-black font-extrabold uppercase">Score</th>
+                    <tr className="bg-green-300 border-b border-black">
+                      <th className="px-2 py-1 text-left text-black font-bold">#</th>
+                      <th className="px-2 py-1 text-left text-black font-bold">Player</th>
+                      <th className="px-2 py-1 text-right text-black font-bold">Pts</th>
                     </tr>
                   </thead>
                   <tbody>
                     {ghanaScores.map((entry, index) => (
-                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid black"}}>
-                        <td className="px-4 py-2 font-bold">{index + 1}</td>
-                        <td className="px-4 py-2 font-medium">{entry.playerName}</td>
-                        <td className="px-4 py-2 text-right font-extrabold">{entry.score}</td>
+                      <tr key={entry.id} className={index % 2 === 0 ? "bg-cream-100" : ""} style={{borderBottom: "1px solid #eee"}}>
+                        <td className="px-2 py-1">{index + 1}</td>
+                        <td className="px-2 py-1">{entry.playerName}</td>
+                        <td className="px-2 py-1 text-right">{entry.score}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="text-center py-4 text-black font-bold">No scores yet for Team Ghana!</p>
+              <p className="text-center py-2">No scores</p>
             )}
           </Card>
         )}

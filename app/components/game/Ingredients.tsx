@@ -1,7 +1,6 @@
 "use client";
 
 import { IngredientType } from "@/lib/game/types";
-import { useState, useEffect } from "react";
 
 interface IngredientsProps {
   activeIngredient?: IngredientType;

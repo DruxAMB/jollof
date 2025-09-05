@@ -21,7 +21,7 @@ export function GameModal({ onPhaseChange }: GameModalProps = {}) {
   }, [currentPhase, onPhaseChange]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-cream-50 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-30 bg-cream-50 flex flex-col overflow-hidden">
       <GameProvider>
         <div className="flex-1 overflow-y-auto">
           <Game onPhaseChange={setCurrentPhase} />

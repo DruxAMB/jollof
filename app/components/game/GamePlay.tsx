@@ -136,7 +136,7 @@ export function GamePlay() {
       {/* Main game area */}
       <div className="flex-1 flex flex-col items-center justify-between p-4">
         {/* Action prompt */}
-        <div className="w-full max-w-md mb-4">
+        <div className="w-full max-w-md mb-4 text-black">
           <ActionPrompt
             actionType={state.nextAction?.type}
             ingredient={state.nextAction?.type === 'tap' ? state.nextAction.ingredient : undefined}
@@ -157,7 +157,7 @@ export function GamePlay() {
         </div>
         
         {/* Ingredients */}
-        <div className="w-full max-w-xl mt-4">
+        <div className="w-full max-w-xl mt-4 text-black">
           <Ingredients
             activeIngredient={state.nextAction?.type === 'tap' ? state.nextAction.ingredient : undefined}
             onIngredientClick={handleIngredientTap}
