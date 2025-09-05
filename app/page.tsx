@@ -43,6 +43,21 @@ export default function App() {
     }
   }, [gameModalOpen]);
   
+  // Listen for custom event to open leaderboard modal
+  useEffect(() => {
+    const handleOpenLeaderboardModal = () => {
+      setLeaderboardModalOpen(true);
+      setGameModalOpen(false);
+    };
+    
+    window.addEventListener('openLeaderboardModal', handleOpenLeaderboardModal);
+    
+    // Clean up event listener on unmount
+    return () => {
+      window.removeEventListener('openLeaderboardModal', handleOpenLeaderboardModal);
+    };
+  }, []);
+  
   // Function to update the active game phase (will be passed to GameModal)
   const updateGamePhase = useCallback((phase: string) => {
     setActiveGamePhase(phase);

@@ -208,8 +208,8 @@ export async function POST(request: NextRequest) {
     const id = Date.now().toString();
     const timestamp = Date.now();
     
-    // Create the entry with timestamp and ID
-    const entry = {
+    // Create the entry with timestamp and ID - avoid null values as Redis doesn't support them
+    const entry: Record<string, string | number> = {
       id,
       playerName: body.playerName,
       score: body.score,
@@ -218,9 +218,13 @@ export async function POST(request: NextRequest) {
       combo: body.combo || 0,
       perfectActions: body.perfectActions || 0,
       accuracy: body.accuracy || 0,
-      fid: body.fid,
       isVerifiedUser: body.isVerifiedUser ? 'true' : 'false'
     };
+    
+    // Only add fid if it's not null/undefined
+    if (body.fid) {
+      entry.fid = body.fid;
+    }
     
     // Use a transaction to ensure data consistency
     const pipeline = redis.pipeline();

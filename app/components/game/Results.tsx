@@ -105,12 +105,17 @@ export function Results(): JSX.Element {
       }, 1500);
       
       return () => clearTimeout(timer);
-    } else if (!context?.user?.fid) {
-      // For non-Farcaster users, we'll just use an empty name initially
-      // They'll need to enter it manually
+    } 
+  }, [context?.user?.fid, state.phase, submitted, isSubmitting, handleSubmitScore]);
+  
+  // Only set empty name on initial mount for non-Farcaster users
+  useEffect(() => {
+    if (!context?.user?.fid) {
+      // For non-Farcaster users, initialize with empty name only once
       setPlayerName('');
     }
-  }, [context, state.phase, submitted, isSubmitting, handleSubmitScore]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array = run only on mount
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 mb-28">
@@ -183,7 +188,7 @@ export function Results(): JSX.Element {
                     value={playerName}
                     onChange={(e) => setPlayerName(e.target.value)}
                     placeholder="Enter your name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
+                    className="w-full px-4 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
                     maxLength={20}
                   />
                 </div>
@@ -223,7 +228,11 @@ export function Results(): JSX.Element {
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => window.location.href = "/#leaderboard"}
+                onClick={() => {
+                  // Use a custom event to trigger the leaderboard modal to open
+                  const event = new CustomEvent('openLeaderboardModal');
+                  window.dispatchEvent(event);
+                }}
                 className="w-full"
               >
                 View Leaderboard
