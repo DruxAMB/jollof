@@ -49,6 +49,16 @@ export interface PlayerStats {
   badges: string[];
 }
 
+export interface ScoreEntry {
+  playerName: string;
+  team: TeamType;
+  score: number;
+  timestamp: number;
+  perfectActions?: number;
+  longestCombo?: number;
+  id?: string;
+}
+
 export interface GameState {
   phase: GamePhase;
   team: TeamType | null;

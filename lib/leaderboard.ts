@@ -10,6 +10,8 @@ export interface LeaderboardEntry {
   combo: number;
   perfectActions: number;
   accuracy: number;
+  fid?: string; // Farcaster user ID if available
+  isVerifiedUser?: boolean; // Whether the user was authenticated via Farcaster
 }
 
 // Mock leaderboard data (for development without a backend)
