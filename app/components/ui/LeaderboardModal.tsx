@@ -24,12 +24,28 @@ interface TeamTableProps {
   entries: LeaderboardEntry[];
   teamColor: string;
   context: any;
+  isLoading?: boolean;
 }
 
-function TeamTable({ entries, teamColor, context }: TeamTableProps) {
+function TeamTable({ entries, teamColor, context, isLoading = false }: TeamTableProps) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center py-4">
+        <div className="animate-pulse mb-2">
+          <div className="h-6 w-6 rounded-full bg-gray-300"></div>
+        </div>
+        <p className="text-sm text-gray-500">Loading scores...</p>
+      </div>
+    );
+  }
+  
   if (entries.length === 0) {
     return <p className="text-center py-2 text-black">No scores</p>;
   }
+  
+  // Determine if we should show team indicators (for combined view)
+  const showTeamIndicators = entries.some(entry => entry.team === "nigeria") && 
+                             entries.some(entry => entry.team === "ghana");
   
   return (
     <div className="overflow-x-auto">
@@ -43,7 +59,21 @@ function TeamTable({ entries, teamColor, context }: TeamTableProps) {
         </thead>
         <tbody className="text-black">
           {entries.map((entry, index) => {
+            // Check if this entry has an FID and if it matches current user
             const isCurrentUser = context?.user?.fid && entry.fid === String(context.user.fid);
+            
+            // Create a name display with priority:
+            // 1. Current user's display name from MiniKit context
+            // 2. Player name stored in the entry
+            const displayName = isCurrentUser && context?.user?.displayName
+              ? context.user.displayName
+              : entry.playerName;
+              
+            // Create a username display if available
+            const username = isCurrentUser && context?.user?.username
+              ? `@${context.user.username}`
+              : null;
+              
             return (
               <tr 
                 key={entry.id} 
@@ -53,11 +83,13 @@ function TeamTable({ entries, teamColor, context }: TeamTableProps) {
                 <td className="px-2 py-1">{index + 1}</td>
                 <td className="px-2 py-1">
                   <div className="flex items-center gap-2">
+                    {/* Avatar display */}
+                    {/* Show profile image for current user with MiniKit data */}
                     {isCurrentUser && context?.user?.pfpUrl ? (
                       <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                         <Image
                           src={context.user.pfpUrl}
-                          alt={context.user.displayName || entry.playerName}
+                          alt={displayName}
                           width={100}
                           height={100}
                           className="object-cover w-full h-full"
@@ -69,13 +101,32 @@ function TeamTable({ entries, teamColor, context }: TeamTableProps) {
                         />
                       </div>
                     ) : (
-                      entry.isVerifiedUser && <span className={`text-xs bg-${teamColor}-300 rounded-full w-5 h-5 flex items-center justify-center`}>✓</span>
+                      /* Show verification checkmark for any verified user (including current) */
+                      entry.isVerifiedUser && (
+                        <div className={`flex-shrink-0 text-xs bg-${teamColor}-300 rounded-full w-5 h-5 flex items-center justify-center text-white`}>✓</div>
+                      )
                     )}
-                    <span className={isCurrentUser ? "font-semibold" : ""}>
-                      {isCurrentUser && context?.user?.displayName ? 
-                        context.user.displayName : entry.playerName}
-                      {isCurrentUser && " (You)"}
-                    </span>
+                    
+                    {/* Name and username */}
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1">
+                        {/* Show team flag indicator in combined view */}
+                        {showTeamIndicators && (
+                          <span className="text-sm" title={entry.team === "nigeria" ? "Nigeria" : "Ghana"}>
+                            {entry.team === "nigeria" ? "🇳🇬" : "🇬🇭"}
+                          </span>
+                        )}
+                        <span className={isCurrentUser ? "font-semibold" : ""}>
+                          {displayName}{isCurrentUser && " (You)"}
+                        </span>
+                      </div>
+                      {/* Show Farcaster username for verified users */}
+                      {(username || entry.fid) && (
+                        <span className="text-xs text-gray-500">
+                          {username || (entry.fid ? `#${entry.fid}` : null)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td className="px-2 py-1 text-right font-medium">{entry.score}</td>
@@ -91,6 +142,7 @@ function TeamTable({ entries, teamColor, context }: TeamTableProps) {
 export function LeaderboardModal(): JSX.Element {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<Team | "all">("all");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   
   // Get Farcaster context
   const { context } = useMiniKit();
@@ -107,17 +159,23 @@ export function LeaderboardModal(): JSX.Element {
 
   // Memoize loadLeaderboard function to prevent recreating it on every render
   const loadLeaderboard = useCallback(async (mountedRef: { current: () => boolean }) => {
+    if (mountedRef.current()) {
+      setIsLoading(true);
+    }
+    
     try {
       const scores = await fetchLeaderboard();
       // Only update state if component is still mounted
       if (mountedRef.current()) {
         setLeaderboard(scores);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error loading leaderboard:", error);
       // Only update state if component is still mounted
       if (mountedRef.current()) {
         setLeaderboard([]);
+        setIsLoading(false);
       }
     }
   }, []);
@@ -206,19 +264,44 @@ export function LeaderboardModal(): JSX.Element {
         </div>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-2">
-        {selectedTeam !== "ghana" && (
-          <Card title="🇳🇬" className="mb-6">
-            <TeamTable entries={nigeriaScores} teamColor="yellow" context={context} />
+      {selectedTeam === "all" ? (
+        // Combined leaderboard for "All" tab
+        <div className="mx-auto max-w-lg">
+          <Card title="Combined Leaderboard" className="mb-6">
+            <TeamTable 
+              entries={sortedScores} 
+              teamColor="gray" 
+              context={context} 
+              isLoading={isLoading}
+            />
           </Card>
-        )}
-        
-        {selectedTeam !== "nigeria" && (
-          <Card title="🇬🇭" className="mb-6">
-            <TeamTable entries={ghanaScores} teamColor="green" context={context} />
-          </Card>
-        )}
-      </div>
+        </div>
+      ) : (
+        // Individual team views for Nigeria/Ghana tabs
+        <div className="grid gap-6 md:grid-cols-2">
+          {selectedTeam === "nigeria" && (
+            <Card title="🇳🇬" className="mb-6">
+              <TeamTable 
+                entries={nigeriaScores} 
+                teamColor="yellow" 
+                context={context} 
+                isLoading={isLoading}
+              />
+            </Card>
+          )}
+          
+          {selectedTeam === "ghana" && (
+            <Card title="🇬🇭" className="mb-6">
+              <TeamTable 
+                entries={ghanaScores} 
+                teamColor="green" 
+                context={context} 
+                isLoading={isLoading}
+              />
+            </Card>
+          )}
+        </div>
+      )}
     </div>
   );
 }
