@@ -3,14 +3,29 @@
 import { TeamType } from "@/lib/game/types";
 import { Card } from "../ui/Card";
 import { useGameContext } from "@/lib/game/context";
+import { useEffect } from "react";
 
 export function TeamSelection() {
   const { state, dispatch } = useGameContext();
+  
+  // Auto-start with existing team if already selected
+  useEffect(() => {
+    // If user already has a team selected from previous sessions
+    if (state.team) {
+      console.log(`Team already selected: ${state.team}. Auto-starting game...`);
+      dispatch({ type: 'START_GAME' });
+    }
+  }, [state.team, dispatch]);
   
   const handleSelectTeam = (team: TeamType) => {
     dispatch({ type: 'SELECT_TEAM', payload: team });
     dispatch({ type: 'START_GAME' });
   };
+  
+  // Don't render anything if a team is already selected
+  if (state.team) {
+    return null;
+  }
   
   return (
     <div className="flex flex-col items-center justify-start mb-16 px-4 py-8 w-full">
