@@ -23,18 +23,50 @@ const config: Config = {
       },
       animation: {
         "fade-out": "1s fadeOut 3s ease-out forwards",
+        "fade-in": "fadeIn 0.3s ease-in-out",
+        "bounce": "bounce 1s infinite",
       },
       keyframes: {
         fadeOut: {
           "0%": { opacity: "1" },
           "100%": { opacity: "0" },
         },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        bounce: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-25%)" },
+        },
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.animation-delay-150': {
+          'animation-delay': '150ms',
+        },
+        '.animation-delay-300': {
+          'animation-delay': '300ms',
+        },
+        '.animation-delay-450': {
+          'animation-delay': '450ms',
+        },
+        '.animation-delay-600': {
+          'animation-delay': '600ms',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
   safelist: [
     'font-nunito',
+    'animation-delay-150',
+    'animation-delay-300',
+    'animation-delay-450',
+    'animation-delay-600',
   ],
 };
 export default config;

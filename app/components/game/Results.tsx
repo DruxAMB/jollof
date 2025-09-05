@@ -11,18 +11,32 @@ import { useAccount } from 'wagmi';
 import { JSX } from "react";
 
 // Helper function to update player stats on the server
-async function updatePlayerStats(playerId: string, score: number) {
+async function updatePlayerStats(playerId: string, score: number, team: string) {
   try {
+    console.log(`[DEBUG] Updating player stats - playerId: ${playerId}, score: ${score}, team: ${team}`);
+    
+    // First, log the current stats before update
+    const beforeResponse = await fetch(`/api/player-stats?playerId=${playerId}`);
+    if (beforeResponse.ok) {
+      const beforeStats = await beforeResponse.json();
+      console.log(`[DEBUG] Player stats BEFORE update:`, beforeStats);
+    }
+    
+    // Now update the stats
     const response = await fetch('/api/player-stats', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playerId, score })
+      body: JSON.stringify({ playerId, score, team })
     });
     
     if (response.ok) {
       const updatedStats = await response.json();
       console.log(`[DEBUG] Updated player stats for ${playerId}:`, updatedStats);
+      console.log(`[DEBUG] Score added: ${score}, New total: ${updatedStats.totalScore}`);
       return updatedStats;
+    } else {
+      const errorText = await response.text();
+      console.error(`[DEBUG] Error updating player stats: ${response.status} ${errorText}`);
     }
   } catch (error) {
     console.error('[DEBUG] Failed to update player stats:', error);
@@ -80,11 +94,11 @@ export function Results(): JSX.Element {
       if (!context?.user?.fid && address) {
         // For wallet users
         const playerId = address;
-        updatePlayerStats(playerId, state.score.totalScore);
+        updatePlayerStats(playerId, state.score.totalScore, state.team || 'unknown');
       } else if (context?.user?.fid) {
         // For Farcaster users, use FID as player ID
         const playerId = context.user.fid.toString();
-        updatePlayerStats(playerId, state.score.totalScore);
+        updatePlayerStats(playerId, state.score.totalScore, state.team || 'unknown');
       }
       
       console.log('Submitting score:', {

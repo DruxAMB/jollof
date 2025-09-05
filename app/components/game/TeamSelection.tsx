@@ -3,17 +3,27 @@
 import { TeamType } from "@/lib/game/types";
 import { Card } from "../ui/Card";
 import { useGameContext } from "@/lib/game/context";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function TeamSelection() {
   const { state, dispatch } = useGameContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("");
   
   // Auto-start with existing team if already selected
   useEffect(() => {
     // If user already has a team selected from previous sessions
     if (state.team) {
+      setIsLoading(true);
+      setLoadingText(`Team ${state.team} detected, loading game...`);
       console.log(`Team already selected: ${state.team}. Auto-starting game...`);
-      dispatch({ type: 'START_GAME' });
+      
+      // Small delay to show the loading state
+      const timer = setTimeout(() => {
+        dispatch({ type: 'START_GAME' });
+      }, 800);
+      
+      return () => clearTimeout(timer);
     }
   }, [state.team, dispatch]);
   
@@ -22,9 +32,49 @@ export function TeamSelection() {
     dispatch({ type: 'START_GAME' });
   };
   
-  // Don't render anything if a team is already selected
+  // Show loading state when team is already selected
   if (state.team) {
-    return null;
+    return (
+      <div className="flex flex-col items-center justify-center h-screen animate-fade-in transition-all duration-300">
+        <div className="bg-amber-50 p-6 rounded-lg shadow-md text-center transform hover:scale-105 transition-transform duration-300 border-2 border-amber-300">
+          <div className="mb-4">
+            {state.team === "ghana" ? (
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="absolute inset-0 w-20 h-20 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute inset-0 w-20 h-20 border-4 border-yellow-500 border-b-transparent rounded-full animate-spin animation-delay-150"></div>
+                <div className="absolute inset-0 w-20 h-20 border-4 border-green-500 border-l-transparent rounded-full animate-spin animation-delay-300"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl">🇬🇭</span>
+                </div>
+              </div>
+            ) : (
+              <div className="relative w-20 h-20 mx-auto">
+                <div className="absolute inset-0 w-20 h-20 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                <div className="absolute inset-0 w-20 h-20 border-4 border-white border-b-transparent rounded-full animate-spin animation-delay-150"></div>
+                <div className="absolute inset-0 w-20 h-20 border-4 border-green-600 border-l-transparent rounded-full animate-spin animation-delay-300"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl">🇳🇬</span>
+                </div>
+              </div>
+            )}
+          </div>
+          <h2 className="text-xl font-bold text-amber-800 mb-2 animate-pulse">
+            {loadingText || "Loading game..."}
+          </h2>
+          <p className="text-amber-600 font-medium">
+            {state.team === "ghana" ? "Team Ghana 🇬🇭" : "Team Nigeria 🇳🇬"}
+          </p>
+          <div className="mt-3 flex items-center justify-center gap-1">
+            <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
+            <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce animation-delay-150"></div>
+            <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce animation-delay-300"></div>
+          </div>
+          <p className="text-sm text-gray-500 mt-2">
+            Calculating scores...
+          </p>
+        </div>
+      </div>
+    );
   }
   
   return (

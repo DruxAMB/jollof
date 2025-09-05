@@ -12,6 +12,7 @@ interface PlayerStats {
   highScore: number;
   gamesPlayed: number;
   lastGameDate: string;
+  team?: string; // Store the player's team preference
 }
 
 /**
@@ -203,10 +204,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const { playerId, score } = body;
+    const { playerId, score, team } = body;
+    
+    console.log(`[API] Updating stats for player ${playerId} - score: ${score}, team: ${team || 'not provided'}`);
     
     // Get current player stats
     const currentStats = await redis.hgetall(`${PLAYER_STATS_KEY}:${playerId}`);
+    
+    console.log(`[API] Current stats:`, currentStats);
     
     // Prepare updated stats - handle null/empty objects from Redis
     const currentTotalScore = currentStats && currentStats.totalScore ? parseInt(currentStats.totalScore as string) : 0;
@@ -217,7 +222,9 @@ export async function POST(request: NextRequest) {
       totalScore: currentTotalScore + score,
       highScore: Math.max(currentHighScore, score),
       gamesPlayed: currentGamesPlayed + 1,
-      lastGameDate: new Date().toISOString()
+      lastGameDate: new Date().toISOString(),
+      // Preserve existing team or use the new one
+      team: team || currentStats?.team || undefined
     };
     
     // Save updated stats to Redis - convert to Record<string, unknown>
@@ -227,6 +234,11 @@ export async function POST(request: NextRequest) {
       gamesPlayed: updatedStats.gamesPlayed,
       lastGameDate: updatedStats.lastGameDate
     };
+    
+    // Add team if present
+    if (updatedStats.team) {
+      statsRecord.team = updatedStats.team;
+    }
     await redis.hset(`${PLAYER_STATS_KEY}:${playerId}`, statsRecord);
     
     console.log(`Updated stats for player ${playerId}:`, updatedStats);
