@@ -1,47 +1,18 @@
 import { Redis } from "@upstash/redis";
 
-// Configuration options for Redis
-interface RedisConfig {
-  url: string;
-  token: string;
-  connectionTimeout?: number; // in ms
-  maxRetries?: number;
+if (!process.env.REDIS_URL || !process.env.REDIS_TOKEN) {
+  console.warn(
+    "REDIS_URL or REDIS_TOKEN environment variable is not defined, please add to enable Redis functionality."
+  );
 }
 
-// Default configuration with reasonable values
-const DEFAULT_CONFIG: Partial<RedisConfig> = {
-  connectionTimeout: 5000,  // 5 second connection timeout
-  maxRetries: 3,            // Retry failed connections up to 3 times
-};
-
-/**
- * Create and validate Redis client
- */
-function createRedisClient(): Redis | null {
-  if (!process.env.REDIS_URL || !process.env.REDIS_TOKEN) {
-    console.warn(
-      "REDIS_URL or REDIS_TOKEN environment variable is not defined. Redis functionality will be disabled."
-    );
-    return null;
-  }
-  
-  try {
-    // Create Redis client with configuration
-    const config: RedisConfig = {
-      url: process.env.REDIS_URL,
-      token: process.env.REDIS_TOKEN,
-      ...DEFAULT_CONFIG
-    };
-    
-    return new Redis(config);
-  } catch (error) {
-    console.error("Failed to initialize Redis client:", error);
-    return null;
-  }
-}
-
-// Export Redis client instance
-export const redis = createRedisClient();
+export const redis =
+  process.env.REDIS_URL && process.env.REDIS_TOKEN
+    ? new Redis({
+        url: process.env.REDIS_URL,
+        token: process.env.REDIS_TOKEN,
+      })
+    : null;
 
 /**
  * Validate Redis connection by pinging the server
@@ -53,9 +24,37 @@ export async function validateRedisConnection(): Promise<boolean> {
   try {
     // Try to ping Redis server
     const result = await redis.ping();
-    return result === 'PONG';
+    const isValid = result === 'PONG';
+    console.info('Redis connection validation result:', isValid ? '✅ Connected' : '❌ Failed');
+    return isValid;
   } catch (error) {
     console.error("Redis connection validation failed:", error);
     return false;
   }
+}
+
+/**
+ * Check if Redis is available for use
+ * This function can be used synchronously throughout the codebase
+ */
+export function isRedisAvailable(): boolean {
+  // For client-side, never use Redis
+  if (typeof window !== 'undefined') {
+    return false;
+  }
+  
+  // Return true if the client exists (no need for pre-validation)
+  return redis !== null;
+}
+
+// Run a simple validation on startup to confirm connection
+if (typeof window === 'undefined' && redis) {
+  redis.ping().then(result => {
+    const connected = result === 'PONG';
+    if (!connected) {
+      console.warn('⚠️ Redis ping failed');
+    }
+  }).catch(() => {
+    console.warn('⚠️ Redis connection failed');
+  });
 }

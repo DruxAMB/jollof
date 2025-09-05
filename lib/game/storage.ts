@@ -1,55 +1,38 @@
 import { GameState } from './types';
-import { initialGameState } from './reducer';
-import { redis } from '../redis';
 
-const GAME_STATE_KEY = 'jollof_wars:game_state';
-const USER_STATE_KEY = 'jollof_wars:user_state';
+// API endpoints for game state persistence
+const GAME_STATE_API = '/api/game-state';
 
 /**
- * Helper function to check if Redis is available
- */
-function isRedisAvailable(): boolean {
-  return redis !== null;
-}
-
-/**
- * Save game state to Redis
+ * Save game state using API route
  * @param state Current game state
  * @param userId Optional user ID (Farcaster FID) for user-specific state
  */
 export async function saveGameState(state: GameState, userId?: string): Promise<void> {
   try {
-    // If Redis isn't available, don't try to save
-    if (!isRedisAvailable() || !redis) {
-      console.warn('Redis not available, game state will not be persisted');
-      return;
-    }
-
-    // Prepare the data to save
-    const dataToSave = {
-      team: state.team || '',  // Ensure team is a string, never null
-      playerStats: JSON.stringify(state.playerStats),
-      tutorialComplete: state.tutorialComplete ? 'true' : 'false',
-    };
+    const response = await fetch(GAME_STATE_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ state, userId }),
+    });
     
-    // If we have a userId (Farcaster FID), save to user-specific state
-    if (userId) {
-      const userStateKey = `${USER_STATE_KEY}:${userId}`;
-      await redis.hset(userStateKey, dataToSave);
-      
-      // Set TTL for user-specific data (30 days)
-      await redis.expire(userStateKey, 60 * 60 * 24 * 30);
-    } else {
-      // Otherwise, save to general game state (no expiration for global data)
-      await redis.hset(GAME_STATE_KEY, dataToSave);
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        console.error('Failed to save game state:', errorData.error || response.status);
+      } catch (parseError) {
+        console.error('Failed to save game state:', response.status, response.statusText);
+      }
     }
   } catch (error) {
-    console.error('Failed to save game state to Redis:', error);
+    console.error('Failed to save game state via API:', error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Load game state from Redis
+ * Load game state using API route
  * @param initialState Default state to use if nothing is in storage
  * @param userId Optional user ID (Farcaster FID) for user-specific state
  * @returns Game state with persisted values
@@ -59,53 +42,48 @@ export async function loadGameState(
   userId?: string
 ): Promise<GameState> {
   try {
-    // If Redis isn't available, return the initial state
-    if (!isRedisAvailable() || !redis) {
-      console.warn('Redis not available, using initial game state');
-      return initialState;
-    }
-
-    // Try to get user-specific state if userId provided
-    let savedState: Record<string, any> | null = null;
-    if (userId) {
-      savedState = await redis.hgetall(`${USER_STATE_KEY}:${userId}`);
-    }
+    // Build the URL with userId as a query parameter if provided
+    const url = userId ? `${GAME_STATE_API}?userId=${userId}` : GAME_STATE_API;
     
-    // If no user state found or no userId provided, try the general state
-    if (!savedState || Object.keys(savedState).length === 0) {
-      savedState = await redis.hgetall(GAME_STATE_KEY);
-    }
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+      // Use credentials: 'same-origin' to ensure cookies are sent
+      credentials: 'same-origin',
+    });
     
-    // If no saved state at all, return the initial state
-    if (!savedState || Object.keys(savedState).length === 0) {
+    if (!response.ok) {
+      console.warn(`Failed to load game state (${response.status}: ${response.statusText}), using initial state`);
       return initialState;
     }
     
-    // Parse the player stats
-    let playerStats = initialState.playerStats;
-    if (savedState.playerStats && typeof savedState.playerStats === 'string') {
-      try {
-        playerStats = JSON.parse(savedState.playerStats);
-      } catch (e) {
-        console.error('Failed to parse playerStats:', e);
-      }
+    const savedState = await response.json().catch(error => {
+      console.error('Failed to parse game state response:', error);
+      return null;
+    });
+    
+    // If no saved state or empty object returned, return the initial state
+    if (!savedState || Object.keys(savedState).length === 0) {
+      return initialState;
     }
-
+    
     // Return merged state
     return {
       ...initialState,
       team: savedState.team || initialState.team,
-      playerStats: playerStats,
-      tutorialComplete: savedState.tutorialComplete === 'true' || initialState.tutorialComplete,
+      playerStats: savedState.playerStats || initialState.playerStats,
+      tutorialComplete: savedState.tutorialComplete || initialState.tutorialComplete,
     };
   } catch (error) {
-    console.error('Failed to load game state from Redis:', error);
+    console.error('Failed to load game state via API:', error);
     return initialState;
   }
 }
 
 /**
- * Synchronous fallback for loadGameState when Redis isn't available
+ * Synchronous fallback for loadGameState 
  * This is needed for the useReducer initialization
  * @param initialState Default state to use
  * @returns The initial game state
@@ -116,25 +94,28 @@ export function initGameState(initialState: GameState): GameState {
 }
 
 /**
- * Clear saved game state from Redis
+ * Clear saved game state using API route
  * @param userId Optional user ID to clear specific user state
  */
 export async function clearGameState(userId?: string): Promise<void> {
   try {
-    // If Redis isn't available, don't try to clear
-    if (!isRedisAvailable() || !redis) {
-      console.warn('Redis not available, cannot clear game state');
-      return;
-    }
+    // Build the URL with userId as a query parameter if provided
+    const url = userId ? `${GAME_STATE_API}?userId=${userId}` : GAME_STATE_API;
     
-    if (userId) {
-      // Clear user-specific state
-      await redis.del(`${USER_STATE_KEY}:${userId}`);
-    } else {
-      // Clear general game state
-      await redis.del(GAME_STATE_KEY);
+    const response = await fetch(url, {
+      method: 'DELETE',
+      credentials: 'same-origin',
+    });
+    
+    if (!response.ok) {
+      try {
+        const errorData = await response.json();
+        console.error('Failed to clear game state:', errorData.error || response.status);
+      } catch (parseError) {
+        console.error('Failed to clear game state:', response.status, response.statusText);
+      }
     }
   } catch (error) {
-    console.error('Failed to clear game state from Redis:', error);
+    console.error('Failed to clear game state via API:', error instanceof Error ? error.message : String(error));
   }
 }

@@ -7,11 +7,23 @@ const nextConfig = {
     return config;
   },
   images: {
-    domains: [
-      'imagedelivery.net', // Farcaster profile images
-      'i.imgur.com',       // Common image hosting
-      'res.cloudinary.com', // Another common CDN
-      'tba-mobile.mypinata.cloud' // Pinata IPFS gateway
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'imagedelivery.net', // Farcaster profile images
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com', // Common image hosting
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com', // Another common CDN
+      },
+      {
+        protocol: 'https',
+        hostname: 'tba-mobile.mypinata.cloud', // Pinata IPFS gateway
+      },
     ],
   },
 };

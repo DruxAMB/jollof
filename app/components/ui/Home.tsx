@@ -15,11 +15,11 @@ export function Home({ setActiveTab, onOpenGame, onOpenLeaderboard }: HomeProps)
     <div className="space-y-6 animate-fade-in">
       <Card className="bg-cream-50">
         <div className="flex flex-col items-center">
-          <div className="relative w-full max-w-xs h-48 mb-4">
+          <div className="relative w-full max-w-xs h-[125px] mb-4">
             <Image 
               src="/nigeria-vs-ghana.png" 
               alt="Jollof Wars" 
-              className="rounded-lg shadow-md object-cover"
+              className="rounded-lg shadow-md object-cover border"
               fill
               priority
             />
