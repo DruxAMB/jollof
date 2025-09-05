@@ -60,6 +60,7 @@ export const initialGameState: GameState = {
   settings: defaultGameSettings,
   playerStats: defaultPlayerStats,
   tutorialComplete: false,
+  lastPlayerName: '',
 };
 
 // Sample cooking actions sequence

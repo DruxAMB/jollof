@@ -124,6 +124,7 @@ export async function loadGameState(
       team: savedState.team || initialState.team,
       playerStats: savedState.playerStats || initialState.playerStats,
       tutorialComplete: savedState.tutorialComplete || initialState.tutorialComplete,
+      lastPlayerName: savedState.lastPlayerName || initialState.lastPlayerName,
     };
   } catch (error) {
     console.error('Failed to load game state via API:', error);

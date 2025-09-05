@@ -7,7 +7,28 @@ import { ScoreDisplay } from "./ScoreDisplay";
 import { submitScore, LeaderboardEntry } from "@/lib/leaderboard";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
+import { useAccount } from 'wagmi';
 import { JSX } from "react";
+
+// Helper function to update player stats on the server
+async function updatePlayerStats(playerId: string, score: number) {
+  try {
+    const response = await fetch('/api/player-stats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, score })
+    });
+    
+    if (response.ok) {
+      const updatedStats = await response.json();
+      console.log(`[DEBUG] Updated player stats for ${playerId}:`, updatedStats);
+      return updatedStats;
+    }
+  } catch (error) {
+    console.error('[DEBUG] Failed to update player stats:', error);
+  }
+  return null;
+}
 
 export function Results(): JSX.Element {
   const { state, dispatch } = useGameContext();
@@ -16,9 +37,15 @@ export function Results(): JSX.Element {
   // We track the submitted entry but don't currently display it differently
   const [, setPlayerEntry] = useState<LeaderboardEntry | null>(null);
   const [playerName, setPlayerName] = useState<string>("");
+  const [isReturningUser, setIsReturningUser] = useState(false);
+  const [cumulativeScore, setCumulativeScore] = useState(0);
+  const [gamesPlayed, setGamesPlayed] = useState(0);
 
   // Use Farcaster context 
   const { context, isFrameReady, setFrameReady } = useMiniKit();
+  
+  // Use wallet connection
+  const { address } = useAccount();
 
   // Calculate metrics using useMemo to prevent recalculations
   const perfectActions = state.playerStats.perfectActions;
@@ -49,8 +76,16 @@ export function Results(): JSX.Element {
     setIsSubmitting(true);
     
     try {
-      // We don't need to save manually entered names anymore
-      // Redis will handle persistence through the submitScore function
+      // Update player stats on the server
+      if (!context?.user?.fid && address) {
+        // For wallet users
+        const playerId = address;
+        updatePlayerStats(playerId, state.score.totalScore);
+      } else if (context?.user?.fid) {
+        // For Farcaster users, use FID as player ID
+        const playerId = context.user.fid.toString();
+        updatePlayerStats(playerId, state.score.totalScore);
+      }
       
       console.log('Submitting score:', {
         name: nameToUse.trim(),
@@ -81,8 +116,8 @@ export function Results(): JSX.Element {
     } finally {
       setIsSubmitting(false);
     }
-  }, [playerName, state.team, state.score.totalScore, state.playerStats.longestCombo, 
-      state.playerStats.perfectActions, accuracy, context]);
+  }, [playerName, state, dispatch, state.team, state.score.totalScore, state.playerStats.longestCombo, 
+      state.playerStats.perfectActions, accuracy, context, address]);
 
   // Handle returning to the game
   const handlePlayAgain = useCallback(() => {
@@ -107,14 +142,50 @@ export function Results(): JSX.Element {
     } 
   }, [context?.user?.fid, context?.user?.username, state.phase, submitted, isSubmitting, handleSubmitScore]);
   
-  // Only set empty name on initial mount for non-Farcaster users
+  // Check for returning user and get player stats - run this as early as possible
   useEffect(() => {
-    if (!context?.user?.fid) {
-      // For non-Farcaster users, initialize with empty name only once
+    console.log('[DEBUG] Results component mounted, checking for returning user');
+    console.log('[DEBUG] Address:', address);
+    console.log('[DEBUG] Context user:', context?.user);
+    
+    const fetchPlayerStats = async (id: string) => {
+      try {
+        // Get player stats from server
+        const response = await fetch(`/api/player-stats?playerId=${id}`);
+        if (response.ok) {
+          const stats = await response.json();
+          console.log(`[DEBUG] Player stats for ${id}:`, stats);
+          setCumulativeScore(stats.totalScore);
+          setGamesPlayed(stats.gamesPlayed);
+          if (stats.gamesPlayed > 0) {
+            setIsReturningUser(true);
+          }
+        }
+      } catch (error) {
+        console.error('[DEBUG] Failed to get player stats:', error);
+      }
+    };
+    
+    // Only run for non-Farcaster users who have a connected wallet
+    if (!context?.user?.fid && address) {
+      // Get player stats from server
+      fetchPlayerStats(address);
+      
+      // Generate a name from address
+      const generatedName = `${address.slice(0, 4)}...${address.slice(-4)}`;
+      console.log(`[DEBUG] Using wallet address for name: ${generatedName}`);
+      setPlayerName(generatedName);
+    } 
+    // For Farcaster users, get their stats using FID
+    else if (context?.user?.fid) {
+      fetchPlayerStats(context.user.fid.toString());
+    }
+    // If no wallet or Farcaster, just use empty string
+    else {
+      console.log('[DEBUG] No wallet or Farcaster, using empty name');
       setPlayerName('');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array = run only on mount
+  }, [address, context?.user?.fid]);  // Run when address or Farcaster context changes
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 mb-28">
@@ -130,6 +201,15 @@ export function Results(): JSX.Element {
 
         <div className="mb-6">
           <ScoreDisplay score={state.score} combo={state.combo} />
+          
+          {isReturningUser && cumulativeScore > state.score.totalScore && (
+            <div className="mt-4 bg-gradient-to-r from-amber-100 to-yellow-100 p-3 rounded-lg text-center border border-amber-200">
+              <div className="text-sm text-gray-600 mb-1">Your Cumulative Score</div>
+              <div className="text-2xl font-extrabold text-amber-600">
+                {cumulativeScore} <span className="text-sm text-gray-500">points</span>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -157,7 +237,7 @@ export function Results(): JSX.Element {
           <div className="bg-amber-50 p-3 rounded-lg text-center">
             <div className="text-sm text-gray-500">Total Plays</div>
             <div className="text-xl font-bold text-amber-600">
-              {state.playerStats.totalPlays}
+              {isReturningUser && address ? gamesPlayed : state.playerStats.totalPlays}
             </div>
           </div>
         </div>
@@ -177,20 +257,27 @@ export function Results(): JSX.Element {
               </div>
             ) : (
               <div className="flex flex-col space-y-4">
-                <div>
-                  <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-1">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    id="playerName"
-                    value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full px-4 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
-                    maxLength={20}
-                  />
-                </div>
+                {isReturningUser ? (
+                  <div className="bg-amber-50 p-3 rounded-lg">
+                    <div className="text-sm text-gray-500">Welcome back!</div>
+                    <div className="font-semibold text-amber-800">{playerName}</div>
+                  </div>
+                ) : (
+                  <div>
+                    <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 mb-1">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      id="playerName"
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value)}
+                      placeholder="Enter your name"
+                      className="w-full px-4 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:ring-amber-500 focus:border-amber-500"
+                      maxLength={20}
+                    />
+                  </div>
+                )}
                 
                 <div className="flex flex-col space-y-3">
                   <Button

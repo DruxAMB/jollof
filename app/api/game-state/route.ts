@@ -106,6 +106,7 @@ export async function POST(request: NextRequest) {
       team: state.team || '',  // Ensure team is a string, never null
       playerStats: JSON.stringify(state.playerStats),
       tutorialComplete: state.tutorialComplete ? 'true' : 'false',
+      lastPlayerName: state.lastPlayerName || '',
     };
     
     // If we have a userId, save to user-specific state

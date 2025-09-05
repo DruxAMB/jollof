@@ -71,4 +71,5 @@ export interface GameState {
   settings: GameSettings;
   playerStats: PlayerStats;
   tutorialComplete: boolean;
+  lastPlayerName?: string;
 }
