@@ -4,7 +4,8 @@ import { useGameContext } from "@/lib/game/context";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { submitScore, LeaderboardEntry } from "@/lib/leaderboard";
+import { submitScore, LeaderboardEntry, getUserBestScore } from "@/lib/leaderboard";
+import { saveGameState } from "@/lib/game/storage";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
 import { JSX } from "react";
@@ -49,10 +50,8 @@ export function Results(): JSX.Element {
     setIsSubmitting(true);
     
     try {
-      // Only save manually entered names to localStorage
-      if (typeof window !== 'undefined' && !context?.user) {
-        localStorage.setItem('jollof_player_name', nameToUse);
-      }
+      // We don't need to save manually entered names anymore
+      // Redis will handle persistence through the submitScore function
       
       console.log('Submitting score:', {
         name: nameToUse.trim(),
@@ -106,9 +105,10 @@ export function Results(): JSX.Element {
       }, 1500);
       
       return () => clearTimeout(timer);
-    } else if (!context?.user?.fid && typeof window !== 'undefined') {
-      // Fallback to localStorage for non-Farcaster users
-      setPlayerName(localStorage.getItem('jollof_player_name') || '');
+    } else if (!context?.user?.fid) {
+      // For non-Farcaster users, we'll just use an empty name initially
+      // They'll need to enter it manually
+      setPlayerName('');
     }
   }, [context, state.phase, submitted, isSubmitting, handleSubmitScore]);
 

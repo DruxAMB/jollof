@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
 import { 
   GameState, 
   GamePhase, 
@@ -10,7 +10,8 @@ import {
   PlayerStats
 } from './types';
 import { initialGameState, gameReducer } from './reducer';
-import { loadGameState, saveGameState } from './storage';
+import { loadGameState, saveGameState, initGameState } from './storage';
+import { useMiniKit } from '@coinbase/onchainkit/minikit';
 
 // Re-export the GameReducerAction type from the reducer
 type GameReducerAction = import('./reducer').GameReducerAction;
@@ -38,17 +39,60 @@ interface GameProviderProps {
 
 // Game provider component
 export function GameProvider({ children }: GameProviderProps) {
-  // Load saved state or use initial state
+  // Get Farcaster user context for user-specific state
+  const { context } = useMiniKit();
+  const userId = context?.user?.fid ? String(context.user.fid) : undefined;
+  
+  // Initialize with the initial state first (synchronous)
   const [state, dispatch] = useReducer(
     gameReducer,
     initialGameState,
-    loadGameState
+    initGameState
   );
+  
+  // Track if initial load has happened
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Save state changes to local storage
+  // Load saved state from Redis when component mounts
   useEffect(() => {
-    saveGameState(state);
-  }, [state]);
+    async function loadState() {
+      try {
+        // Load state from Redis (this is async)
+        const loadedState = await loadGameState(initialGameState, userId);
+        
+        // Only dispatch if the state is different than initial
+        if (JSON.stringify(loadedState) !== JSON.stringify(state)) {
+          // Set state by dispatching LOAD_STATE action
+          dispatch({ type: 'LOAD_STATE', payload: loadedState });
+        }
+        
+        setIsLoaded(true);
+      } catch (error) {
+        console.error('Failed to load game state:', error);
+        setIsLoaded(true); // Still mark as loaded so UI doesn't hang
+      }
+    }
+    
+    loadState();
+  }, [userId]); // Only re-run if user ID changes
+
+  // Save state changes to Redis
+  useEffect(() => {
+    // Don't try to save until initial load is complete
+    if (!isLoaded) return;
+    
+    // Create an async function to save state
+    async function persistState() {
+      try {
+        await saveGameState(state, userId);
+      } catch (error) {
+        console.error('Failed to save game state:', error);
+      }
+    }
+    
+    // Call the function
+    persistState();
+  }, [state, userId, isLoaded]);
 
   // Context value functions
   const selectTeam = (team: TeamType) => {

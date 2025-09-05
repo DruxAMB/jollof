@@ -18,7 +18,8 @@ export type GameReducerAction =
   | { type: 'UPDATE_TIMER'; payload: number }
   | { type: 'END_GAME' }
   | { type: 'RESET_GAME' }
-  | { type: 'SKIP_TUTORIAL' };
+  | { type: 'SKIP_TUTORIAL' }
+  | { type: 'LOAD_STATE'; payload: GameState };
 
 // Initial game settings
 const defaultGameSettings: GameSettings = {
@@ -258,6 +259,12 @@ export function gameReducer(state: GameState, action: GameReducerAction): GameSt
         ...state,
         phase: 'countdown',
         tutorialComplete: true,
+      };
+    
+    case 'LOAD_STATE':
+      // Replace the current state with the loaded state
+      return {
+        ...action.payload,
       };
       
     default:
