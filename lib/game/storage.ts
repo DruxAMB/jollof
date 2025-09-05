@@ -53,7 +53,7 @@ export async function saveGameState(state: GameState, userId?: string): Promise<
           const errorData = await response.json();
           console.error(`Failed to save game state (attempt ${attempts}/${maxAttempts}):`, 
             errorData.error || response.status);
-        } catch (parseError) {
+        } catch {
           console.error(`Failed to save game state (attempt ${attempts}/${maxAttempts}):`, 
             response.status, response.statusText);
         }
@@ -160,7 +160,7 @@ export async function clearGameState(userId?: string): Promise<void> {
       try {
         const errorData = await response.json();
         console.error('Failed to clear game state:', errorData.error || response.status);
-      } catch (parseError) {
+      } catch {
         console.error('Failed to clear game state:', response.status, response.statusText);
       }
     }

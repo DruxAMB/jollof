@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
-import { GameState } from '@/lib/game/types';
-
 // Redis key constants
 const GAME_STATE_KEY = 'jollof_wars:game_state';
 const USER_STATE_KEY = 'jollof_wars:user_state';
@@ -23,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
     
     // Try to get user-specific state if userId provided
-    let savedState: Record<string, any> | null = null;
+    let savedState: Record<string, string | number | boolean> | null = null;
     
     if (userId) {
       const userStateKey = `${USER_STATE_KEY}:${userId}`;

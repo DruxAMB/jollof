@@ -4,8 +4,7 @@ import { useGameContext } from "@/lib/game/context";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { ScoreDisplay } from "./ScoreDisplay";
-import { submitScore, LeaderboardEntry, getUserBestScore } from "@/lib/leaderboard";
-import { saveGameState } from "@/lib/game/storage";
+import { submitScore, LeaderboardEntry } from "@/lib/leaderboard";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
 import { JSX } from "react";
@@ -15,7 +14,7 @@ export function Results(): JSX.Element {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   // We track the submitted entry but don't currently display it differently
-  const [playerEntry, setPlayerEntry] = useState<LeaderboardEntry | null>(null);
+  const [, setPlayerEntry] = useState<LeaderboardEntry | null>(null);
   const [playerName, setPlayerName] = useState<string>("");
 
   // Use Farcaster context 
@@ -106,7 +105,7 @@ export function Results(): JSX.Element {
       
       return () => clearTimeout(timer);
     } 
-  }, [context?.user?.fid, state.phase, submitted, isSubmitting, handleSubmitScore]);
+  }, [context?.user?.fid, context?.user?.username, state.phase, submitted, isSubmitting, handleSubmitScore]);
   
   // Only set empty name on initial mount for non-Farcaster users
   useEffect(() => {

@@ -12,7 +12,7 @@ interface CacheItem<T> {
  * In-memory cache for frequently accessed data
  */
 class MemoryCache {
-  private cache: Map<string, CacheItem<any>>;
+  private cache: Map<string, CacheItem<unknown>>;
   private defaultTTL: number; // TTL in milliseconds
 
   constructor(defaultTTL = 60000) { // Default 1 minute TTL

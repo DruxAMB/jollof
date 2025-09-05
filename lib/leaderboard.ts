@@ -17,7 +17,7 @@ export interface LeaderboardEntry {
 
 // API endpoints for leaderboard functionality
 const LEADERBOARD_API = "/api/leaderboard";
-const USER_SCORE_API = "/api/leaderboard/user";
+// const USER_SCORE_API = "/api/leaderboard/user";
 const TEAM_STATS_API = "/api/leaderboard/team-stats";
 
 /**

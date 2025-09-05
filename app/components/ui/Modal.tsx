@@ -16,7 +16,6 @@ export function Modal({
   onClose, 
   children, 
   title,
-  showCloseButton = true 
 }: ModalProps) {
   const [mounted, setMounted] = useState(false);
   

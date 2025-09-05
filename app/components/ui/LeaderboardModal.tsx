@@ -23,7 +23,7 @@ type LeaderboardEntry = {
 interface TeamTableProps {
   entries: LeaderboardEntry[];
   teamColor: string;
-  context: any;
+  context: ReturnType<typeof useMiniKit>['context'];
   isLoading?: boolean;
 }
 
@@ -243,7 +243,7 @@ export function LeaderboardModal(): JSX.Element {
     <div className="container mx-auto px-4 py-8">
       <div className="my-8 text-center">
         <h1 className="text-3xl font-extrabold text-black mb-4 uppercase">Leaderboard</h1>
-        <p className="text-black font-bold">See who's cooking the best Jollof in town!</p>
+        <p className="text-black font-bold">See who&apos;s cooking the best Jollof in town!</p>
         
         {/* Display country with best jollof based on total score */}
         {!isLoading && leaderboard.length > 0 && (

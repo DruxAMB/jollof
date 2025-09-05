@@ -5,7 +5,7 @@ import { Card } from "./Card";
 import { useGameContext } from "@/lib/game/context";
 
 export function Tutorial() {
-  const { state, dispatch } = useGameContext();
+  const { dispatch } = useGameContext();
 
   const handleSkipTutorial = () => {
     dispatch({ type: 'SKIP_TUTORIAL' });
@@ -69,7 +69,7 @@ export function Tutorial() {
               <h3 className="font-medium text-gray-800">Build Combos</h3>
               <p className="text-gray-600">
                 Complete consecutive actions correctly to build your combo multiplier.
-                Don't break your streak!
+                Don&apos;t break your streak!
               </p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export function Tutorial() {
             onClick={handleSkipTutorial}
             className="px-8"
           >
-            Let's Cook!
+            Let&apos;s Cook!
           </Button>
         </div>
       </Card>

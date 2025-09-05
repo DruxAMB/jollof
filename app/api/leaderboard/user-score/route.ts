@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import { TeamType } from '@/lib/game/types';
 
@@ -6,13 +6,14 @@ import { TeamType } from '@/lib/game/types';
 const LEADERBOARD_KEY = "jollof_wars:leaderboard";
 const USER_SCORES_KEY = "jollof_wars:user_scores";
 
-type Params = { params: { fid: string } };
-
 /**
- * Get user's best score
+ * Get user's best score using query param instead of path param
+ * This avoids the type issues with dynamic routes in Next.js 15
  */
-export async function GET(_: Request, { params }: Params) {
-  const fid = params.fid;
+export async function GET(request: NextRequest) {
+  // Get fid from query params
+  const url = new URL(request.url);
+  const fid = url.searchParams.get('fid');
   
   if (!fid) {
     return NextResponse.json(

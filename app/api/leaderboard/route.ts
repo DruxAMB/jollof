@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import { TeamType } from '@/lib/game/types';
-import { cache, LEADERBOARD_CACHE_TTL, USER_CACHE_TTL } from '@/lib/cache';
+import { cache } from '@/lib/cache';
 
 // Redis keys - match exact format in the Redis database
 const LEADERBOARD_KEY = "jollof_wars:leaderboard"; // Sorted set with score mapping
@@ -25,7 +25,7 @@ interface LeaderboardEntry {
 /**
  * Fetch leaderboard data
  */
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     if (!redis) {
       return NextResponse.json(
@@ -106,8 +106,6 @@ export async function GET(request: NextRequest) {
     // Process the results and build the leaderboard
     for (let i = 0; i < entryIds.length; i++) {
       const id = entryIds[i];
-      const scoreIndex = scores.findIndex(s => s === id) + 1;
-      const score = scoreIndex >= 0 ? parseFloat(String(scores[scoreIndex])) : 0;
       
       // Get the entry data from pipeline results
       // Pipeline results are [err, result] tuples

@@ -2,7 +2,6 @@
 
 import { TeamType } from "@/lib/game/types";
 import { Card } from "../ui/Card";
-import { Button } from "../ui/Button";
 import { useGameContext } from "@/lib/game/context";
 
 export function TeamSelection() {

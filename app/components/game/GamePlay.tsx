@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useGameContext } from "@/lib/game/context";
 import { CookingPot } from "./CookingPot";
 import { Ingredients } from "./Ingredients";

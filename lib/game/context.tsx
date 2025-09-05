@@ -3,11 +3,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useState } from 'react';
 import { 
   GameState, 
-  GamePhase, 
   TeamType, 
-  GameAction, 
-  GameScore,
-  PlayerStats
 } from './types';
 import { initialGameState, gameReducer } from './reducer';
 import { loadGameState, saveGameState, initGameState } from './storage';
@@ -74,7 +70,7 @@ export function GameProvider({ children }: GameProviderProps) {
     }
     
     loadState();
-  }, [userId]); // Only re-run if user ID changes
+  }, [state, userId]); // Only re-run if user ID changes
 
   // Save state changes to Redis
   useEffect(() => {

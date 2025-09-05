@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useGameContext } from "@/lib/game/context";
 
 export function Countdown() {
-  const { state, dispatch } = useGameContext();
+  const { dispatch } = useGameContext();
   const [count, setCount] = useState(3); // Start with 3-second countdown
 
   useEffect(() => {

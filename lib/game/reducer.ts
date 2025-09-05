@@ -1,6 +1,5 @@
 import { 
   GameState, 
-  GamePhase, 
   TeamType, 
   GameAction,
   GameScore,
@@ -107,17 +106,10 @@ export function gameReducer(state: GameState, action: GameReducerAction): GameSt
       };
       
     case 'PERFORM_ACTION':
-      // Process player's action (tap or swipe)
-      const { actionType, value } = action.payload;
       
       // Check if this matches the expected next action
       if (!state.nextAction) return state;
       
-      const isCorrectAction = 
-        (state.nextAction.type === actionType) && 
-        ((actionType === 'tap' && state.nextAction.ingredient === value) ||
-         (actionType === 'swipe' && state.nextAction.direction === value));
-         
       return {
         ...state,
         // We'll calculate timing and success in COMPLETE_ACTION
