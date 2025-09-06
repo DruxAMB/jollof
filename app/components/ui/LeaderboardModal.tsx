@@ -157,7 +157,7 @@ export function LeaderboardModal(): JSX.Element {
   
   // Get Farcaster context and wallet address
   const { context } = useMiniKit();
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = useCallback(() => {
@@ -266,10 +266,15 @@ export function LeaderboardModal(): JSX.Element {
           </div>
         )}
         
-        {/* Team follow buttons */}
-        <div className="mt-6 flex flex-wrap justify-center gap-4 border-4 border-red-500">
-          <TeamFollowButton team="ghana" className="w-48" />
-          <TeamFollowButton team="nigeria" className="w-48" />
+        {/* Team follow buttons with connection status message */}
+        <div className="mt-6 flex flex-col items-center">
+          {!isConnected && (
+            <p className="text-amber-600 font-medium mb-2">Connect wallet to follow teams</p>
+          )}
+          <div className="flex flex-wrap justify-center gap-4">
+            <TeamFollowButton team="ghana" />
+            <TeamFollowButton team="nigeria" />
+          </div>
         </div>
       </div>
       

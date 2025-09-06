@@ -1,6 +1,6 @@
 "use client";
 
-// import { useAccount } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useTeamFollowerCount } from '@/lib/efp';
 import { FollowButton } from 'ethereum-identity-kit';
 import { getTeamAddress } from '@/lib/efp';
@@ -11,7 +11,7 @@ interface TeamFollowButtonProps {
 }
 
 export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => {
-//   const { address } = useAccount();
+  const { address } = useAccount();
   const teamName = team === 'ghana' ? 'Ghana 🇬🇭' : 'Nigeria 🇳🇬';
   const teamAddress = getTeamAddress(team);
   
@@ -23,8 +23,8 @@ export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => 
       <div className={`${team === 'ghana' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} rounded-md p-1`}>
         <FollowButton 
           lookupAddress={teamAddress}
-          className="w-full"
-          onDisconnectedClick={() => alert(`Connect your wallet to follow Team ${teamName}`)}
+          className="w-full font-medium"
+          connectedAddress={address as `0x${string}`}
         />
       </div>
       <div className="text-xs text-center mt-2">
@@ -32,7 +32,7 @@ export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => 
           {`Support Team ${teamName}`}
         </p>
         {!isCountLoading && (
-          <p className="font-medium mt-1">
+          <p className="font-medium mt-1 text-black">
             <span className="text-amber-600 font-bold">{followerCount}</span> followers
           </p>
         )}
