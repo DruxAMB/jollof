@@ -8,8 +8,8 @@ import * as React from 'react';
 
 // Team addresses for following
 const TEAM_ADDRESSES = {
-  ghana: '0x57BC8af90a6777e1EF01640f9Cd2AF7A9242D66e', // Example address, replace with real one
-  nigeria: '0x98126de6e8F69A6AEf450B45d1AC0ed0C4fE779c'  // Example address, replace with real one
+  ghana: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045', // Vitalik's address
+  nigeria: '0x849151d7D0bF1F34b70d5caD5149D28CC2308bf1'  // JessePollak's address
 };
 
 /**

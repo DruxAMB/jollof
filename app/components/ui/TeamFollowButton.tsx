@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount } from 'wagmi';
+// import { useAccount } from 'wagmi';
 import { useTeamFollowerCount } from '@/lib/efp';
 import { FollowButton } from 'ethereum-identity-kit';
 import { getTeamAddress } from '@/lib/efp';
@@ -11,7 +11,7 @@ interface TeamFollowButtonProps {
 }
 
 export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => {
-  const { address } = useAccount();
+//   const { address } = useAccount();
   const teamName = team === 'ghana' ? 'Ghana 🇬🇭' : 'Nigeria 🇳🇬';
   const teamAddress = getTeamAddress(team);
   

@@ -4,14 +4,14 @@ import { type ReactNode } from "react";
 import { base } from "wagmi/chains";
 import { MiniKitProvider } from "@coinbase/onchainkit/minikit";
 import { TransactionProvider } from "ethereum-identity-kit";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Create a new QueryClient instance
-const queryClient = new QueryClient();
+// const queryClient = new QueryClient();
 
 export function Providers(props: { children: ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
+    // <QueryClientProvider client={queryClient}>
       <MiniKitProvider
         apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
         chain={base}
@@ -28,6 +28,6 @@ export function Providers(props: { children: ReactNode }) {
           {props.children}
         </TransactionProvider>
       </MiniKitProvider>
-    </QueryClientProvider>
+    // </QueryClientProvider>
   );
 }
