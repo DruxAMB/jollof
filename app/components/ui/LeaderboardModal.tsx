@@ -267,12 +267,10 @@ export function LeaderboardModal(): JSX.Element {
         )}
         
         {/* Team follow buttons */}
-        {address && (
-          <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <TeamFollowButton team="ghana" className="w-48" />
-            <TeamFollowButton team="nigeria" className="w-48" />
-          </div>
-        )}
+        <div className="mt-6 flex flex-wrap justify-center gap-4 border-4 border-red-500">
+          <TeamFollowButton team="ghana" className="w-48" />
+          <TeamFollowButton team="nigeria" className="w-48" />
+        </div>
       </div>
       
       <div className="flex justify-center mb-6">
