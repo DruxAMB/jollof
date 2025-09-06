@@ -5,6 +5,7 @@ import { JSX } from "react";
 import Image from "next/image";
 import { Card } from "./Card";
 import { Button } from "./Button";
+import { ENSProfile } from "./ENSProfile";
 import { fetchLeaderboard } from "@/lib/leaderboard";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
 import { useAccount } from 'wagmi';
@@ -87,9 +88,14 @@ function TeamTable({ entries, teamColor, context, userAddress, isLoading = false
                 <td className="px-2 py-1">{index + 1}</td>
                 <td className="px-2 py-1">
                   <div className="flex items-center gap-2">
-                    {/* Avatar display */}
-                    {/* Show profile image for current user with MiniKit data */}
-                    {isCurrentUser && context?.user?.pfpUrl ? (
+                    {/* Avatar display - Use ENS Profile for wallet addresses */}
+                    {!entry.fid && entry.playerName && entry.playerName.startsWith('0x') ? (
+                      <ENSProfile 
+                        address={entry.playerName as `0x${string}`} 
+                        showAddress={false}
+                        className="flex-shrink-0"
+                      />
+                    ) : isCurrentUser && context?.user?.pfpUrl ? (
                       <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                         <Image
                           src={context.user.pfpUrl}
