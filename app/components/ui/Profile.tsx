@@ -172,7 +172,6 @@ export function Profile({ setActiveTab }: ProfileProps) {
           {/* ENS Profile Section - Only show if wallet is connected */}
           {address && (
             <div className="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-200">
-              <h3 className="text-lg font-semibold text-amber-800 mb-3">Ethereum Name Service</h3>
               <div className="flex justify-center">
                 <ENSProfile 
                   address={address as `0x${string}`} 
@@ -180,9 +179,6 @@ export function Profile({ setActiveTab }: ProfileProps) {
                   className="flex items-center justify-center"
                 />
               </div>
-              <p className="text-xs text-amber-600 mt-2 text-center">
-                ENS displays your Ethereum Name Service identity
-              </p>
             </div>
           )}
         </div>
