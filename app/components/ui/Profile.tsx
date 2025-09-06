@@ -6,6 +6,7 @@ import { Button } from "./Button";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
 import { useAccount } from 'wagmi';
 import Image from "next/image";
+import { ENSProfile } from "./ENSProfile";
 
 type ProfileProps = {
   setActiveTab: (tab: string) => void;
@@ -165,6 +166,23 @@ export function Profile({ setActiveTab }: ProfileProps) {
           ) : (
             <div className="text-center py-4">
               <p className="text-amber-700">No stats available yet. Play a game to see your stats!</p>
+            </div>
+          )}
+          
+          {/* ENS Profile Section - Only show if wallet is connected */}
+          {address && (
+            <div className="mt-6 bg-amber-50 p-4 rounded-lg border border-amber-200">
+              <h3 className="text-lg font-semibold text-amber-800 mb-3">Ethereum Name Service</h3>
+              <div className="flex justify-center">
+                <ENSProfile 
+                  address={address as `0x${string}`} 
+                  showAddress={true}
+                  className="flex items-center justify-center"
+                />
+              </div>
+              <p className="text-xs text-amber-600 mt-2 text-center">
+                ENS displays your Ethereum Name Service identity
+              </p>
             </div>
           )}
         </div>
