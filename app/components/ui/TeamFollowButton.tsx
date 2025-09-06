@@ -23,13 +23,8 @@ export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => 
       <div className={`${team === 'ghana' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} rounded-md p-1`}>
         <FollowButton 
           lookupAddress={teamAddress}
-        //   size="lg"
-        //   variant="solid"
           className="w-full"
-        //   loadingLabel="Processing..."
-        //   followingLabel={`Following ${teamName}`}
-        //   unfollowingLabel={`Unfollow ${teamName}`}
-        //   followLabel={`Follow Team ${teamName}`}
+          onDisconnectedClick={() => alert(`Connect your wallet to follow Team ${teamName}`)}
         />
       </div>
       <div className="text-xs text-center mt-2">
