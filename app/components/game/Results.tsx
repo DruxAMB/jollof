@@ -54,6 +54,8 @@ export function Results(): JSX.Element {
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [cumulativeScore, setCumulativeScore] = useState(0);
   const [gamesPlayed, setGamesPlayed] = useState(0);
+  // Add loading state for score calculation
+  const [isCalculating, setIsCalculating] = useState(true);
 
   // Use Farcaster context 
   const { context, isFrameReady, setFrameReady } = useMiniKit();
@@ -73,11 +75,18 @@ export function Results(): JSX.Element {
   // Is high score?
   const isHighScore = state.score.totalScore >= state.playerStats.highScore;
 
-  // Set frame as ready when component mounts
+  // Set frame as ready when component mounts and handle loading overlay
   useEffect(() => {
     if (!isFrameReady) {
       setFrameReady();
     }
+    
+    // Show loading overlay for score calculation
+    const timer = setTimeout(() => {
+      setIsCalculating(false);
+    }, 1500); // 1.5 second delay
+    
+    return () => clearTimeout(timer);
   }, [setFrameReady, isFrameReady]);
 
   // Handle submitting score with proper memoization
@@ -202,8 +211,17 @@ export function Results(): JSX.Element {
   }, [address, context?.user?.fid]);  // Run when address or Farcaster context changes
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 mb-28">
-      <Card className="w-full max-w-lg">
+    <div className="container mx-auto px-4 py-6">
+      <Card className="relative overflow-hidden">
+        {/* Loading overlay while calculating score */}
+        {isCalculating && (
+          <div className="absolute inset-0 bg-white bg-opacity-90 z-50 flex items-center justify-center">
+            <div className="text-center">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent mb-3"></div>
+              <p className="text-amber-600 font-medium">calculating score...</p>
+            </div>
+          </div>
+        )}
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
             {isHighScore ? "🎉 New High Score! 🎉" : "Results"}

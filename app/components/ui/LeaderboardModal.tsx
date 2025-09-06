@@ -89,14 +89,8 @@ function TeamTable({ entries, teamColor, context, userAddress, isLoading = false
                 <td className="px-2 py-1">{index + 1}</td>
                 <td className="px-2 py-1">
                   <div className="flex items-center gap-2">
-                    {/* Avatar display - Use ENS Profile for wallet addresses */}
-                    {!entry.fid && entry.playerName && entry.playerName.startsWith('0x') ? (
-                      <ENSProfile 
-                        address={entry.playerName as `0x${string}`} 
-                        showAddress={false}
-                        className="flex-shrink-0"
-                      />
-                    ) : isCurrentUser && context?.user?.pfpUrl ? (
+                    {/* Don't use ENS Profile in main leaderboard */}
+                    {isCurrentUser && context?.user?.pfpUrl ? (
                       <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
                         <Image
                           src={context.user.pfpUrl}
