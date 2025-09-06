@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Card } from "./Card";
 import { Button } from "./Button";
 import { ENSProfile } from "./ENSProfile";
+import { TeamFollowButton } from "./TeamFollowButton";
 import { fetchLeaderboard } from "@/lib/leaderboard";
 import { useMiniKit } from '@coinbase/onchainkit/minikit';
 import { useAccount } from 'wagmi';
@@ -262,6 +263,14 @@ export function LeaderboardModal(): JSX.Element {
             <span className="text-lg mr-2">{bestJollofFlag}</span>
             <span className={`font-bold text-${bestJollofColor}-600`}>{bestJollofCountry}</span> 
             <span className="ml-1">makes the best jollof! ({nigeriaTotalScore > ghanaTotalScore ? nigeriaTotalScore : ghanaTotalScore} pts)</span>
+          </div>
+        )}
+        
+        {/* Team follow buttons */}
+        {address && (
+          <div className="mt-6 flex flex-wrap justify-center gap-4">
+            <TeamFollowButton team="ghana" className="w-48" />
+            <TeamFollowButton team="nigeria" className="w-48" />
           </div>
         )}
       </div>

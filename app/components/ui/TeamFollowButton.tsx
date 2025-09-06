@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import { Button } from './Button';
 import { useAccount } from 'wagmi';
+import { useTeamFollowerCount } from '@/lib/efp';
+import { FollowButton } from 'ethereum-identity-kit';
 import { getTeamAddress } from '@/lib/efp';
 
 interface TeamFollowButtonProps {
@@ -11,79 +11,37 @@ interface TeamFollowButtonProps {
 }
 
 export const TeamFollowButton = ({ team, className }: TeamFollowButtonProps) => {
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { address, isConnected } = useAccount();
-  
-  const teamAddress = getTeamAddress(team);
+  const { address } = useAccount();
   const teamName = team === 'ghana' ? 'Ghana 🇬🇭' : 'Nigeria 🇳🇬';
+  const teamAddress = getTeamAddress(team);
   
-  // Toggle follow status
-  const toggleFollow = async () => {
-    if (!isConnected || !address) {
-      // Prompt user to connect wallet
-      alert('Please connect your wallet to follow this team');
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      // In a real implementation, this would call the EFP contract
-      // For demo purposes, we'll just toggle the state
-      
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setIsFollowing(!isFollowing);
-      
-      // Display success message
-      if (!isFollowing) {
-        // User is now following
-        console.log(`Now following Team ${teamName}`);
-      } else {
-        // User unfollowed
-        console.log(`Unfollowed Team ${teamName}`);
-      }
-    } catch (error) {
-      console.error('Error toggling follow status:', error);
-      alert('Failed to update follow status');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Get follower count
+  const { count: followerCount, isLoading: isCountLoading } = useTeamFollowerCount(team);
   
   return (
     <div className={`flex flex-col ${className}`}>
-      <Button
-        variant={isFollowing ? "outline" : "primary"}
-        onClick={toggleFollow}
-        disabled={isLoading}
-        className={`${team === 'ghana' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} ${isFollowing ? 'border-2' : ''}`}
-      >
-        {isLoading ? (
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-full border-2 border-t-transparent animate-spin"></div>
-            <span>Processing...</span>
-          </div>
-        ) : isFollowing ? (
-          <div className="flex items-center gap-2">
-            <span>✓</span>
-            <span>Following</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span>+</span>
-            <span>Follow Team {teamName}</span>
-          </div>
+      <div className={`${team === 'ghana' ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} rounded-md p-1`}>
+        <FollowButton 
+          lookupAddress={teamAddress}
+        //   size="lg"
+        //   variant="solid"
+          className="w-full"
+        //   loadingLabel="Processing..."
+        //   followingLabel={`Following ${teamName}`}
+        //   unfollowingLabel={`Unfollow ${teamName}`}
+        //   followLabel={`Follow Team ${teamName}`}
+        />
+      </div>
+      <div className="text-xs text-center mt-2">
+        <p className="text-gray-500">
+          {`Support Team ${teamName}`}
+        </p>
+        {!isCountLoading && (
+          <p className="font-medium mt-1">
+            <span className="text-amber-600 font-bold">{followerCount}</span> followers
+          </p>
         )}
-      </Button>
-      <p className="text-xs text-gray-500 mt-1 text-center">
-        {isFollowing 
-          ? `You're following Team ${teamName}` 
-          : `Follow Team ${teamName} to show your support`
-        }
-      </p>
+      </div>
     </div>
   );
 };
