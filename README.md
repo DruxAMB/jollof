@@ -1,61 +1,84 @@
-# MiniKit Template
+# 🍚 Jollof Wars
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-onchain --mini`](), configured with:
+[![Play Jollof Wars](https://img.shields.io/badge/Play%20Now-Farcaster%20Miniapp-purple)](https://farcaster.xyz/miniapps/m29neOxI6U3a/jollof)
 
-- [MiniKit](https://docs.base.org/builderkits/minikit/overview)
-- [OnchainKit](https://www.base.org/builders/onchainkit)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Next.js](https://nextjs.org/docs)
+Jollof Wars is a fun, interactive game that celebrates the friendly rivalry between Ghana and Nigeria over who makes the best jollof rice. Choose your team, cook the perfect jollof through a series of timed actions, and compete for the title of Jollof Champion!
 
-## Getting Started
+![Jollof Wars Screenshot](public/hero.png)
+
+## 🎮 Play Now
+
+Play Jollof Wars on Farcaster: [https://farcaster.xyz/miniapps/m29neOxI6U3a/jollof](https://farcaster.xyz/miniapps/m29neOxI6U3a/jollof)
+
+## 🌟 Features
+
+- **Team-Based Competition**: Choose between Team Ghana 🇬🇭 and Team Nigeria 🇳🇬
+- **Engaging Gameplay**: Cook jollof through a series of timed cooking actions
+- **Real-time Leaderboard**: Compete against other players
+- **Farcaster Integration**: Seamless user identification
+- **ENS Support**: Display ENS names and avatars on the leaderboard
+- **Ethereum Follow Protocol**: Follow your favorite team with on-chain social connections
+
+## 🏗️ Technical Architecture
+
+### Frontend
+- **Framework:** React with Next.js
+- **UI:** Tailwind CSS with custom theming
+- **State Management:** React Context API
+- **Wallet Integration:** Wagmi hooks and OnchainKit
+
+### Integrations
+- **Farcaster MiniKit:** User identification and authentication
+- **Ethereum Name Service (ENS):** Name resolution and avatar display
+- **Ethereum Follow Protocol (EFP):** On-chain social connections
+- **Redis Database:** Leaderboard storage and game state
+
+## 🎮 Game Mechanics
+
+### Game Flow
+1. **Team Selection:** Choose between Team Ghana or Team Nigeria
+2. **Cooking Game:** Complete timed actions to cook the perfect jollof
+3. **Scoring:** Earn points based on timing, accuracy, and combos
+4. **Leaderboard:** Compare your score with other players
+
+### Leaderboard System
+- Individual player rankings
+- Team-based competition (Ghana vs Nigeria)
+- ENS integration for player identification
+- Filterable by team
+
+## 🔌 Web3 Integrations
+
+### ENS Integration
+- Resolves wallet addresses to human-readable names
+- Displays ENS avatars in the leaderboard
+- Enhances user experience with recognizable identities
+
+### Ethereum Follow Protocol
+- Follow Team Ghana (Vitalik.eth) or Team Nigeria (JessePollak.eth)
+- On-chain social graph connections
+- View follower counts for each team
+
+## 🚀 Getting Started
 
 1. Install dependencies:
 ```bash
 npm install
 # or
 yarn install
-# or
-pnpm install
-# or
-bun install
 ```
 
-2. Verify environment variables, these will be set up by the `npx create-onchain --mini` command:
-
-You can regenerate the FARCASTER Account Association environment variables by running `npx create-onchain --manifest` in your project directory.
-
-The environment variables enable the following features:
-
-- Frame metadata - Sets up the Frame Embed that will be shown when you cast your frame
-- Account association - Allows users to add your frame to their account, enables notifications
-- Redis API keys - Enable Webhooks and background notifications for your application by storing users notification details
-
+2. Set up environment variables:
 ```bash
-# Shared/OnchainKit variables
-NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME=
-NEXT_PUBLIC_URL=
-NEXT_PUBLIC_ICON_URL=
-NEXT_PUBLIC_ONCHAINKIT_API_KEY=
+# Create a .env.local file with these variables
+NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME="Jollof Wars"
+NEXT_PUBLIC_URL=http://localhost:3000
+NEXT_PUBLIC_ICON_URL=/icon.png
+NEXT_PUBLIC_ONCHAINKIT_API_KEY=your_api_key_here
 
-# Frame metadata
-FARCASTER_HEADER=
-FARCASTER_PAYLOAD=
-FARCASTER_SIGNATURE=
-NEXT_PUBLIC_APP_ICON=
-NEXT_PUBLIC_APP_SUBTITLE=
-NEXT_PUBLIC_APP_DESCRIPTION=
-NEXT_PUBLIC_APP_SPLASH_IMAGE=
-NEXT_PUBLIC_SPLASH_BACKGROUND_COLOR=
-NEXT_PUBLIC_APP_PRIMARY_CATEGORY=
-NEXT_PUBLIC_APP_HERO_IMAGE=
-NEXT_PUBLIC_APP_TAGLINE=
-NEXT_PUBLIC_APP_OG_TITLE=
-NEXT_PUBLIC_APP_OG_DESCRIPTION=
-NEXT_PUBLIC_APP_OG_IMAGE=
-
-# Redis config
-REDIS_URL=
-REDIS_TOKEN=
+# Redis for leaderboard (optional)
+REDIS_URL=your_redis_url
+REDIS_TOKEN=your_redis_token
 ```
 
 3. Start the development server:
@@ -63,50 +86,33 @@ REDIS_TOKEN=
 npm run dev
 ```
 
-## Template Features
+## 📁 Project Structure
 
-### Frame Configuration
-- `.well-known/farcaster.json` endpoint configured for Frame metadata and account association
-- Frame metadata automatically added to page headers in `layout.tsx`
+```
+/app              # Next.js app directory
+  /api            # API routes for game state and leaderboard
+  /components     # UI components
+    /game         # Game-specific components
+    /ui           # Shared UI components
+/lib              # Utility functions and hooks
+  /game           # Game logic and state management
+  /efp.ts         # Ethereum Follow Protocol integration
+  /ens.ts         # ENS resolution utilities
+/public           # Static assets
+```
 
-### Background Notifications
-- Redis-backed notification system using Upstash
-- Ready-to-use notification endpoints in `api/notify` and `api/webhook`
-- Notification client utilities in `lib/notification-client.ts`
+## 📦 Key Dependencies
 
-### Theming
-- Custom theme defined in `theme.css` with OnchainKit variables
-- Pixel font integration with Pixelify Sans
-- Dark/light mode support through OnchainKit
+- **[@coinbase/onchainkit](https://www.base.org/builders/onchainkit):** MiniKit framework for Farcaster integration
+- **[ethereum-identity-kit](https://ethidentitykit.com):** For Ethereum Follow Protocol
+- **[wagmi](https://wagmi.sh/):** React hooks for Ethereum
+- **[next.js](https://nextjs.org):** React framework
+- **[tailwindcss](https://tailwindcss.com):** Utility-first CSS framework
 
-### MiniKit Provider
-The app is wrapped with `MiniKitProvider` in `providers.tsx`, configured with:
-- OnchainKit integration
-- Access to Frames context
-- Sets up Wagmi Connectors
-- Sets up Frame SDK listeners
-- Applies Safe Area Insets
+## 🔗 Learn More
 
-## Customization
-
-To get started building your own frame, follow these steps:
-
-1. Remove the DemoComponents:
-   - Delete `components/DemoComponents.tsx`
-   - Remove demo-related imports from `page.tsx`
-
-2. Start building your Frame:
-   - Modify `page.tsx` to create your Frame UI
-   - Update theme variables in `theme.css`
-   - Adjust MiniKit configuration in `providers.tsx`
-
-3. Add your frame to your account:
-   - Cast your frame to see it in action
-   - Share your frame with others to start building your community
-
-## Learn More
-
+- [Farcaster Documentation](https://docs.farcaster.xyz/)
+- [Ethereum Name Service (ENS)](https://ens.domains/)
+- [Ethereum Follow Protocol](https://ethfollowprotocol.org/)
 - [MiniKit Documentation](https://docs.base.org/builderkits/minikit/overview)
-- [OnchainKit Documentation](https://docs.base.org/builderkits/onchainkit/getting-started)
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [OnchainKit Documentation](https://www.base.org/builders/onchainkit)
